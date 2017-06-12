@@ -2,10 +2,11 @@
 //
 
 #include "stdafx.h"
-
+#include "NumanalyzerNative.h"
 
 int main()
 {
+	fnNumanalyzerNative("the path");
     return 0;
 }
 

@@ -5,6 +5,11 @@ VisualStudioVersion = 15.0.26430.6
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NumanalyzerNative", "NumanalyzerNative\NumanalyzerNative.vcxproj", "{D5EED224-1EF9-4F75-921E-7C28C0099D20}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NumAnalyzerConsoleTest", "NumAnalyzerConsoleTest\NumAnalyzerConsoleTest.vcxproj", "{B095C9C4-A11D-4AEE-9D84-6B87BCB65023}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D5EED224-1EF9-4F75-921E-7C28C0099D20} = {D5EED224-1EF9-4F75-921E-7C28C0099D20}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -21,6 +26,14 @@ Global
 		{D5EED224-1EF9-4F75-921E-7C28C0099D20}.Release|x64.Build.0 = Release|x64
 		{D5EED224-1EF9-4F75-921E-7C28C0099D20}.Release|x86.ActiveCfg = Release|Win32
 		{D5EED224-1EF9-4F75-921E-7C28C0099D20}.Release|x86.Build.0 = Release|Win32
+		{B095C9C4-A11D-4AEE-9D84-6B87BCB65023}.Debug|x64.ActiveCfg = Debug|x64
+		{B095C9C4-A11D-4AEE-9D84-6B87BCB65023}.Debug|x64.Build.0 = Debug|x64
+		{B095C9C4-A11D-4AEE-9D84-6B87BCB65023}.Debug|x86.ActiveCfg = Debug|Win32
+		{B095C9C4-A11D-4AEE-9D84-6B87BCB65023}.Debug|x86.Build.0 = Debug|Win32
+		{B095C9C4-A11D-4AEE-9D84-6B87BCB65023}.Release|x64.ActiveCfg = Release|x64
+		{B095C9C4-A11D-4AEE-9D84-6B87BCB65023}.Release|x64.Build.0 = Release|x64
+		{B095C9C4-A11D-4AEE-9D84-6B87BCB65023}.Release|x86.ActiveCfg = Release|Win32
+		{B095C9C4-A11D-4AEE-9D84-6B87BCB65023}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

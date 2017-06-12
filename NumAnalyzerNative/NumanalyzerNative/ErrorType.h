@@ -1,5 +1,5 @@
 #pragma once
-
+#include "DataType.h"
 enum class ErrorType : uint32
 {
 	ET_NoError = 0,
