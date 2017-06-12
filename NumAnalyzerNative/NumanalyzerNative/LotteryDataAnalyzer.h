@@ -6,6 +6,8 @@ struct LotteryData
 {
 	uint32 num;
 	std::vector<uint32>	data;
+
+	std::string date;
 };
 
 class LotteryDataAnalyzer
@@ -21,7 +23,6 @@ private:
 private:
 	std::wstring	mDataPath;
 	std::string		mDataContent;
-
 
 	std::list<LotteryData>	mLotteryData;
 };
