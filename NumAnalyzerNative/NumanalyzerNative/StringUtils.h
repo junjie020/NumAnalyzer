@@ -1,8 +1,8 @@
 #pragma once
 
 
-std::string utf8_to_utf16(const std::wstring &wstr);
-std::wstring utf16_to_utf8(const std::string &str);
+std::wstring utf8_to_utf16(const std::string &wstr);
+std::string utf16_to_utf8(const std::wstring &str);
 
 bool is_white_space(int32 c);
 
@@ -28,5 +28,11 @@ void trim(StrType &str)
 	}
 
 	str = str.substr(leftIdx, rightIdx);
+}
+
+template<typename CharType>
+bool is_empty_c_str(const CharType *ch)
+{
+	return ch == nullptr || *ch == '\0';
 }
 

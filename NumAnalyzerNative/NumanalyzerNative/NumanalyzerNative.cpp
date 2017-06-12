@@ -6,6 +6,8 @@
 
 #include "LotteryDataAnalyzer.h"
 
+#include "StringUtils.h"
+
 
 // This is an example of an exported variable
 NUMANALYZERNATIVE_API int nNumanalyzerNative=0;
@@ -14,7 +16,8 @@ NUMANALYZERNATIVE_API int nNumanalyzerNative=0;
 NUMANALYZERNATIVE_API int fnNumanalyzerNative(const char* path)
 {
 	CNumanalyzerNative analyer;
-	return int(analyer.Run(L""));
+	const std::wstring wPath = is_empty_c_str(path) ? L"" : utf8_to_utf16(std::string(path));
+	return int(analyer.Run(wPath));
 }
 
 // This is the constructor of a class that has been exported.
