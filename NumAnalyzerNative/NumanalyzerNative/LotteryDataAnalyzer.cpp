@@ -14,6 +14,16 @@ LotteryDataAnalyzer::LotteryDataAnalyzer(const std::wstring &dataPath)
 
 ErrorType LotteryDataAnalyzer::ConstructData()
 {
+	auto result = ReadDataFromFile();
+	if (result == ErrorType::ET_NoError)
+	{
+
+	}
+	return result;
+}
+
+ErrorType LotteryDataAnalyzer::Analyze(LotteryAnalyzeOutputData &output)
+{
 	return ErrorType::ET_NoError;
 }
 

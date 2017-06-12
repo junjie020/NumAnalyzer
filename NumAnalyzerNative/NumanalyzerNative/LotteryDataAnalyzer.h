@@ -10,12 +10,19 @@ struct LotteryData
 	std::string date;
 };
 
+struct LotteryAnalyzeOutputData
+{
+
+};
+
 class LotteryDataAnalyzer
 {
 public:
 	LotteryDataAnalyzer(const std::wstring &dataPath);
 
 	ErrorType ConstructData();
+
+	ErrorType Analyze(LotteryAnalyzeOutputData &output);
 
 private:
 	ErrorType ReadDataFromFile();

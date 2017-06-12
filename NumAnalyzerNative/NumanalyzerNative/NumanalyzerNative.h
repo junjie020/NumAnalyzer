@@ -18,14 +18,26 @@
 //EXPIMP_TEMPLATE template class NUMANALYZERNATIVE_API std::wstring;
 //EXPIMP_TEMPLATE template class NUMANALYZERNATIVE_API std::string;
 
+#include "ErrorType.h"
+
+class LotteryDataAnalyzer;
+
 // This class is exported from the NumanalyzerNative.dll
 class NUMANALYZERNATIVE_API CNumanalyzerNative 
 {
 public:
-	CNumanalyzerNative() = default;
+	CNumanalyzerNative();
+	~CNumanalyzerNative();
+	
 	// TODO: add your methods here.
+	ErrorType Run(const std::wstring &path);
+
+private:
+	void ReleaseLotteryAnalyzer();
+private:
+	LotteryDataAnalyzer *mLotteryAnalyzer;
 };
 
 extern NUMANALYZERNATIVE_API int nNumanalyzerNative;
 
-NUMANALYZERNATIVE_API int fnNumanalyzerNative(void);
+NUMANALYZERNATIVE_API int fnNumanalyzerNative(const char* path);
