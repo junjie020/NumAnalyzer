@@ -4,3 +4,6 @@
 /NumanalyzerNative.lib
 /NumAnalyzerConsoleTest.pdb
 /NumAnalyzerConsoleTest.exe
+NumAnalyzerGUI.exe
+NumAnalyzerGUI.exe.config
+NumAnalyzerGUI.pdb

@@ -26,18 +26,31 @@ class LotteryDataAnalyzer;
 class NUMANALYZERNATIVE_API CNumanalyzerNative 
 {
 public:
+	static CNumanalyzerNative& Get() 
+	{
+		return mSingleton;
+	}
+public:
 	CNumanalyzerNative();
 	~CNumanalyzerNative();
 	
 	// TODO: add your methods here.
 	ErrorType Run(const std::wstring &path);
 
+	void Clear();
+
 private:
 	void ReleaseLotteryAnalyzer();
 private:
 	LotteryDataAnalyzer *mLotteryAnalyzer;
+
+private:
+	static CNumanalyzerNative mSingleton;
 };
 
 extern NUMANALYZERNATIVE_API int nNumanalyzerNative;
 
+extern "C"
 NUMANALYZERNATIVE_API int fnNumanalyzerNative(const char* path);
+
+//extern "C" NUMANALYZERNATIVE_API int Add(int, int);

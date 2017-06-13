@@ -1,17 +1,18 @@
-﻿<Window x:Class="WpfApp1.MainWindow"
+﻿<Window x:Class="NumAnalyzerGUI.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:WpfApp1"
+        xmlns:local="clr-namespace:NumAnalyzerGUI"
         mc:Ignorable="d"
-        Title="DataAnalyer" Height="330.556" Width="475.093">
+        Title="DataAnalyer" Height="363.612" Width="475.093">
     <Grid >
         <TextBox x:Name="FileTextBox" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top" Width="392"/>
         <Button x:Name="Brown" Content="浏览" HorizontalAlignment="Left" Margin="392,-1,0,0" VerticalAlignment="Top" Width="75" Height="24"/>
         <TextBlock x:Name="OutputWin" HorizontalAlignment="Left" Margin="10,56,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="234" Width="447" ScrollViewer.HorizontalScrollBarVisibility="Auto"/>
         <Button x:Name="Update" Content="更新" HorizontalAlignment="Left" Margin="392,28,0,0" VerticalAlignment="Top" Width="75" RenderTransformOrigin="0.245,0.588" Height="23" Click="Update_Click"/>
         <TextBox x:Name="URLTextBox" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top" Width="392" Margin="0,28,0,0"/>
+        <Button x:Name="Analyze" Content="分析" HorizontalAlignment="Left" Margin="382,304,0,0" VerticalAlignment="Top" Width="75" Click="AnalyzeResult"/>
     </Grid>
 
 </Window>

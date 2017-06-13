@@ -11,6 +11,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NumAnalyzerConsoleTest", "N
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NumAnalyzerGUI", "NumAnalyzerGUI\NumAnalyzerGUI.csproj", "{A493879F-34BC-428D-B513-8E11A2AE1494}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D5EED224-1EF9-4F75-921E-7C28C0099D20} = {D5EED224-1EF9-4F75-921E-7C28C0099D20}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

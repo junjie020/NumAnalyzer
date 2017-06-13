@@ -12,13 +12,25 @@
 // This is an example of an exported variable
 NUMANALYZERNATIVE_API int nNumanalyzerNative=0;
 
-// This is an example of an exported function.
-NUMANALYZERNATIVE_API int fnNumanalyzerNative(const char* path)
+extern "C"
 {
-	CNumanalyzerNative analyer;
-	const std::wstring wPath = is_empty_c_str(path) ? L"" : utf8_to_utf16(std::string(path));
-	return int(analyer.Run(wPath));
+	// This is an example of an exported function.
+	NUMANALYZERNATIVE_API int fnNumanalyzerNative(const char* path)
+	{
+		CNumanalyzerNative::Get().Clear();
+
+		const std::wstring wPath = is_empty_c_str(path) ? L"" : utf8_to_utf16(std::string(path));
+		return int(CNumanalyzerNative::Get().Run(wPath));
+	}
+
+	//NUMANALYZERNATIVE_API int Add(int a, int b)
+	//{
+	//	return a + b;
+	//}
 }
+
+
+
 
 // This is the constructor of a class that has been exported.
 // see NumanalyzerNative.h for the class definition
@@ -48,6 +60,11 @@ ErrorType CNumanalyzerNative::Run(const std::wstring &path)
 	return mLotteryAnalyzer->Analyze(output);
 }
 
+void CNumanalyzerNative::Clear()
+{
+	ReleaseLotteryAnalyzer();
+}
+
 void CNumanalyzerNative::ReleaseLotteryAnalyzer()
 {
 	if (mLotteryAnalyzer)
@@ -56,3 +73,5 @@ void CNumanalyzerNative::ReleaseLotteryAnalyzer()
 		mLotteryAnalyzer = nullptr;
 	}
 }
+
+CNumanalyzerNative CNumanalyzerNative::mSingleton;

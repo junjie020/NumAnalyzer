@@ -21,3 +21,6 @@
 /NumAnalyzerNative/NumAnalyzerConsoleTest/Debug/*.idb
 /NumAnalyzerNative/NumAnalyzerConsoleTest/Debug/*.pdb
 *.pch
+*.pch
+/NumAnalyzerNative/NumAnalyzerGUI/obj/Debug
+/NumAnalyzerNative/NumAnalyzerGUI/bin
