@@ -6,7 +6,7 @@
 
 int main()
 {
-	fnNumanalyzerNative("the path");
+	fnNumanalyzerNative("../TestResource/TestData.txt");
     return 0;
 }
 

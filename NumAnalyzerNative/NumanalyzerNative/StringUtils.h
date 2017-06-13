@@ -27,6 +27,9 @@ void trim(StrType &str)
 		--rightIdx;		
 	}
 
+	if (leftIdx == 0 && rightIdx == str.length() - 1)
+		return;
+
 	str = str.substr(leftIdx, rightIdx);
 }
 
