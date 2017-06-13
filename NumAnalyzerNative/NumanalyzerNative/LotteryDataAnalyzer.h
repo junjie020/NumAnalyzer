@@ -6,6 +6,7 @@ struct LotteryData
 {
 	uint32 num;
 	std::vector<uint32>	data;
+	std::vector<uint8>	dataIndexes;
 
 	std::string date;
 };

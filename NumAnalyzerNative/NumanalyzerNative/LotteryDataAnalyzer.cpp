@@ -17,7 +17,16 @@ ErrorType LotteryDataAnalyzer::ConstructData()
 	auto result = ReadDataFromFile();
 	if (result == ErrorType::ET_NoError)
 	{
-
+		for (auto &lottery : mLotteryData)
+		{
+			lottery.dataIndexes.resize(lottery.data.size());
+	
+			for (size_t ii = 0; ii < lottery.data.size(); ++ii)
+			{
+				const uint32 dataNum = lottery.data[ii];
+				lottery.dataIndexes[dataNum] = uint8(ii);
+			}
+		}
 	}
 	return result;
 }
