@@ -7,4 +7,6 @@ enum class ErrorType : uint32
 	ET_FilePathIsNotValid,
 	ET_FileFormatError,
 	ET_FileFormatErrorWithWrongData,
+
+	ET_AnalyzeEmptyData,
 };

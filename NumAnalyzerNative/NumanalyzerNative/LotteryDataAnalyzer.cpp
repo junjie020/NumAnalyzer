@@ -31,8 +31,26 @@ ErrorType LotteryDataAnalyzer::ConstructData()
 	return result;
 }
 
+static inline bool is_odd_num(uint8 num)
+{
+	return num & 0x01;
+}
+
+static inline bool is_big_num(uint8 num)
+{
+	return num > 5;
+}
+
 ErrorType LotteryDataAnalyzer::Analyze(LotteryAnalyzeOutputData &output)
 {
+	if (mLotteryData.empty())
+		return ErrorType::ET_AnalyzeEmptyData;
+
+	for (size_t ii = 0; ii < mLotteryData.size(); ++ii)
+	{
+		const LotteryData &lottery = mLotteryData[ii];
+
+	}
 	return ErrorType::ET_NoError;
 }
 

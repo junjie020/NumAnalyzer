@@ -13,7 +13,17 @@ struct LotteryData
 
 struct LotteryAnalyzeOutputData
 {
+	struct ContineCounter
+	{
+		uint32 timers;
+	};
 
+	struct OddCounter
+	{
+		uint32 timers;
+	};
+
+	std::vector<ContineCounter>	data;
 };
 
 class LotteryDataAnalyzer
