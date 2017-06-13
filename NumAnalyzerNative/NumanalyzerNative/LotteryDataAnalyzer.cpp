@@ -24,7 +24,7 @@ ErrorType LotteryDataAnalyzer::ConstructData()
 			for (size_t ii = 0; ii < lottery.data.size(); ++ii)
 			{
 				const uint32 dataNum = lottery.data[ii];
-				lottery.dataIndexes[dataNum] = uint8(ii);
+				lottery.dataIndexes[dataNum - 1] = uint8(ii);
 			}
 		}
 	}
@@ -46,9 +46,9 @@ ErrorType LotteryDataAnalyzer::Analyze(LotteryAnalyzeOutputData &output)
 	if (mLotteryData.empty())
 		return ErrorType::ET_AnalyzeEmptyData;
 
-	for (size_t ii = 0; ii < mLotteryData.size(); ++ii)
+	for (const auto &lottery : mLotteryData)
 	{
-		const LotteryData &lottery = mLotteryData[ii];
+		
 
 	}
 	return ErrorType::ET_NoError;
