@@ -17,28 +17,19 @@ ErrorType LotteryDataAnalyzer::ConstructData()
 	auto result = ReadDataFromFile();
 	if (result == ErrorType::ET_NoError)
 	{
-		for (auto &lottery : mLotteryData)
+		for (auto &line : mLotteryData)
 		{
-			lottery.dataIndexes.resize(lottery.data.size());
-	
-			for (size_t ii = 0; ii < lottery.data.size(); ++ii)
+			for (uint32 ii = 0; ii < line.lineData.size(); ++ii)
 			{
-				const uint32 dataNum = lottery.data[ii];
-				lottery.dataIndexes[dataNum - 1] = uint8(ii);
+				BOOST_ASSERT(ii < uint32(std::numeric_limits<uint8>::max()));
+
+				auto &lottery = line.lineData[ii];
+				lottery.idxInLine = uint8(ii);
+				
 			}
 		}
 	}
 	return result;
-}
-
-static inline bool is_odd_num(uint8 num)
-{
-	return num & 0x01;
-}
-
-static inline bool is_big_num(uint8 num)
-{
-	return num > 5;
 }
 
 ErrorType LotteryDataAnalyzer::Analyze(LotteryAnalyzeOutputData &output)
@@ -46,12 +37,22 @@ ErrorType LotteryDataAnalyzer::Analyze(LotteryAnalyzeOutputData &output)
 	if (mLotteryData.empty())
 		return ErrorType::ET_AnalyzeEmptyData;
 
-	for (const auto &lottery : mLotteryData)
-	{
-		
+	uint32 oddCounter = 0, conCounter = 0;
 
+	for (uint32 ii = 0; ii < 10; ++ii)
+	{
+		for (const auto &lottery : mLotteryData)
+		{
+
+		}
 	}
+
 	return ErrorType::ET_NoError;
+}
+
+void LotteryDataAnalyzer::CalcOddData(LotteryAnalyzeOutputData &output)
+{
+
 }
 
 ErrorType LotteryDataAnalyzer::ReadDataFromFile()
@@ -73,9 +74,9 @@ ErrorType LotteryDataAnalyzer::ReadDataFromFile()
 		if (parts.size() != 3)
 			return ErrorType::ET_FileFormatError;
 
-		mLotteryData.push_back(LotteryData());
-		LotteryData &lottery = mLotteryData.back();
-		lottery.num = std::stoi(parts[0]);
+		mLotteryData.push_back(LotteryLineData());
+		LotteryLineData &lottery = mLotteryData.back();
+		lottery.lotteryNum = std::stoi(parts[0]);
 
 		lottery.date = parts[2];
 
@@ -85,9 +86,9 @@ ErrorType LotteryDataAnalyzer::ReadDataFromFile()
 		if (dataParts.size() != 10)
 			return ErrorType::ET_FileFormatErrorWithWrongData;
 
-		for (auto &d : dataParts)
+		for (uint32 ii = 0; ii < dataParts.size(); ++ii)
 		{
-			lottery.data.push_back(std::stoi(d));
+			lottery.lineData.push_back(LotteryLineData::LotteryData(std::stoi(dataParts[ii]), ii));
 		}
 	}
 	return ErrorType::ET_NoError;
