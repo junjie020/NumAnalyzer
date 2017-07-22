@@ -37,16 +37,42 @@ ErrorType LotteryDataAnalyzer::Analyze(LotteryAnalyzeOutputData &output)
 	if (mLotteryData.empty())
 		return ErrorType::ET_AnalyzeEmptyData;
 
-	uint32 oddCounter = 0, conCounter = 0;
+	struct BigNumChecker {
+		static bool IsPositive(uint32 num) { return IsBigNum(num); }
+	};
 
+	struct OddNumChecker {
+		static bool IsPositive(uint32 num) { return IsOddNum(num); }
+	};
+
+	std::tuple<CounterContainer, CounterContainer>	bigCounterContainer;
+	std::tuple<CounterContainer, CounterContainer>	oddCounterContainer;
+
+	ReciprocalCounter<BigNumChecker> bigNumCheckerCounter;	
+	ReciprocalCounter<OddNumChecker> oddNumCheckerCounter;
+
+	//{@ continue case
 	for (uint32 ii = 0; ii < 10; ++ii)
 	{
 		for (const auto &lottery : mLotteryData)
 		{
+			const uint32 num = lottery.lineData[ii].num;
+			if (bigNumCheckerCounter.Calc(num))
+			{
+				bigNumCheckerCounter.StoreInContainer(bigCounterContainer);
+			}		
 
+			if (oddNumCheckerCounter.Calc(num))
+			{
+				oddNumCheckerCounter.StoreInContainer(oddCounterContainer);
+			}
 		}
 	}
+	//@}
 
+	//{@
+	
+	//@}
 	return ErrorType::ET_NoError;
 }
 
@@ -92,4 +118,14 @@ ErrorType LotteryDataAnalyzer::ReadDataFromFile()
 		}
 	}
 	return ErrorType::ET_NoError;
+}
+
+bool IsOddNum(uint32 num)
+{
+	return num & 0x01;
+}
+
+bool IsBigNum(uint32 num)
+{
+	return num > 5;
 }
