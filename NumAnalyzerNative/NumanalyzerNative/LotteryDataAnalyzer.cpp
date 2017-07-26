@@ -37,48 +37,40 @@ ErrorType LotteryDataAnalyzer::Analyze(LotteryAnalyzeOutputData &output)
 	if (mLotteryData.empty())
 		return ErrorType::ET_AnalyzeEmptyData;
 
-	struct BigNumChecker {
-		static bool IsPositive(uint32 num) { return IsBigNum(num); }
-	};
+	ContinueNumAnalyer ca;
+	AnalyzeContinueData(ca);
 
-	struct OddNumChecker {
-		static bool IsPositive(uint32 num) { return IsOddNum(num); }
-	};
+	StepNumAnalyer sa;
+	AnalyzeStepData(sa);
 
-	std::tuple<CounterContainer, CounterContainer>	bigCounterContainer;
-	std::tuple<CounterContainer, CounterContainer>	oddCounterContainer;
-
-	ReciprocalCounter<BigNumChecker> bigNumCheckerCounter;	
-	ReciprocalCounter<OddNumChecker> oddNumCheckerCounter;
-
-	//{@ continue case
-	for (uint32 ii = 0; ii < 10; ++ii)
-	{
-		for (const auto &lottery : mLotteryData)
-		{
-			const uint32 num = lottery.lineData[ii].num;
-			if (bigNumCheckerCounter.Calc(num))
-			{
-				bigNumCheckerCounter.StoreInContainer(bigCounterContainer);
-			}		
-
-			if (oddNumCheckerCounter.Calc(num))
-			{
-				oddNumCheckerCounter.StoreInContainer(oddCounterContainer);
-			}
-		}
-	}
-	//@}
-
-	//{@
-	
-	//@}
 	return ErrorType::ET_NoError;
 }
 
-void LotteryDataAnalyzer::CalcOddData(LotteryAnalyzeOutputData &output)
+static void analyze_num(uint32 num, 
+	ReciprocalCounter<BigNumChecker> &bigNumChecker, 
+	ReciprocalCounter<OddNumChecker> &oddNumChecker, 
+	CounterContainerArray &bigCounterContainer, 
+	CounterContainerArray &oddCounterContainer)
 {
+	if (bigNumChecker.Calc(num))
+	{
+		bigNumChecker.StoreInContainer(bigCounterContainer);
+	}
 
+	if (oddNumChecker.Calc(num))
+	{
+		oddNumChecker.StoreInContainer(oddCounterContainer);
+	}
+}
+
+void LotteryDataAnalyzer::AnalyzeContinueData(ContinueNumAnalyer &analyer)
+{
+	analyer.Analyze(mLotteryData);
+}
+
+void LotteryDataAnalyzer::AnalyzeStepData(StepNumAnalyer &analyer)
+{
+	analyer.Analyze(mLotteryData);
 }
 
 ErrorType LotteryDataAnalyzer::ReadDataFromFile()
@@ -128,4 +120,22 @@ bool IsOddNum(uint32 num)
 bool IsBigNum(uint32 num)
 {
 	return num > 5;
+}
+
+void ContinueNumAnalyer::Analyze(const LotteryLineDataArray &lotteryDataArray)
+{
+	//{@ continue case
+	for (uint32 ii = 0; ii < 10; ++ii)
+	{
+		for (const auto &lotteryLine : lotteryDataArray)
+		{
+			analyze_num(lotteryLine.lineData[ii].num, mBigNumChecker, mOddNumChecker, mBigCounterContainer, mOddCounterContainer);
+		}
+	}
+	//@}
+}
+
+void StepNumAnalyer::Analyze(const LotteryLineDataArray &lotteryDataArray)
+{
+
 }

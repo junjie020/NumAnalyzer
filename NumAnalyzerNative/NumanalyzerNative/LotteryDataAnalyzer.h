@@ -8,6 +8,10 @@ extern bool IsBigNum(uint32 num);
 
 using CounterContainer = std::vector<uint32>;
 
+using CounterContainerArray = std::tuple<CounterContainer, CounterContainer>;
+
+
+
 struct LotteryLineData
 {
 	struct LotteryData
@@ -32,6 +36,8 @@ struct LotteryLineData
 	uint32 lotteryNum;
 	std::string date;
 };
+
+using LotteryLineDataArray = std::vector<LotteryLineData>;
 
 struct LotteryAnalyzeOutputData
 {
@@ -95,6 +101,44 @@ private:
 	uint32 mNegativeCounter;
 };
 
+struct BigNumChecker {
+	static bool IsPositive(uint32 num) { return IsBigNum(num); }
+};
+
+struct OddNumChecker {
+	static bool IsPositive(uint32 num) { return IsOddNum(num); }
+};
+
+class NumAnalyzer
+{
+public:
+	virtual void Analyze(const LotteryLineDataArray &lotteryDataArray) = 0;
+
+
+protected:
+
+
+	ReciprocalCounter<BigNumChecker> mBigNumChecker;
+	ReciprocalCounter<OddNumChecker> mOddNumChecker;
+
+	CounterContainerArray mBigCounterContainer;
+	CounterContainerArray mOddCounterContainer;
+};
+
+
+class ContinueNumAnalyer : public NumAnalyzer
+{
+public:
+	virtual void Analyze(const LotteryLineDataArray &lotteryDataArray) override;
+};
+
+class StepNumAnalyer : public NumAnalyzer
+{
+public:
+	virtual void Analyze(const LotteryLineDataArray &lotteryDataArray) override;
+};
+
+
 class LotteryDataAnalyzer
 {
 public:
@@ -105,13 +149,15 @@ public:
 	ErrorType Analyze(LotteryAnalyzeOutputData &output);
 
 private:
+	void AnalyzeContinueData(ContinueNumAnalyer &analyer);
+	void AnalyzeStepData(StepNumAnalyer &analyer);
 
-	void CalcOddData(LotteryAnalyzeOutputData &output);
+private:
 	ErrorType ReadDataFromFile();
 
 private:
 	std::wstring	mDataPath;
 	std::string		mDataContent;
 
-	std::list<LotteryLineData>	mLotteryData;
+	LotteryLineDataArray	mLotteryData;
 };
