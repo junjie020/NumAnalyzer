@@ -15,7 +15,7 @@ NUMANALYZERNATIVE_API int nNumanalyzerNative=0;
 extern "C"
 {
 	// This is an example of an exported function.
-	NUMANALYZERNATIVE_API int fnNumanalyzerNative(const char* path)
+	NUMANALYZERNATIVE_API int fnNumanalyzerNative(const char* path, char *output)
 	{
 		CNumanalyzerNative::Get().Clear();
 

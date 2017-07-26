@@ -8,7 +8,7 @@
         Title="DataAnalyer" Height="363.612" Width="475.093">
     <Grid >
         <TextBox x:Name="FileTextBox" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top" Width="392"/>
-        <Button x:Name="Brown" Content="浏览" HorizontalAlignment="Left" Margin="392,-1,0,0" VerticalAlignment="Top" Width="75" Height="24"/>
+        <Button x:Name="Brown" Content="浏览" HorizontalAlignment="Left" Margin="392,-1,0,0" VerticalAlignment="Top" Width="75" Height="24" Click="BrownFile"/>
         <TextBlock x:Name="OutputWin" HorizontalAlignment="Left" Margin="10,56,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="234" Width="447" ScrollViewer.HorizontalScrollBarVisibility="Auto"/>
         <Button x:Name="Update" Content="更新" HorizontalAlignment="Left" Margin="392,28,0,0" VerticalAlignment="Top" Width="75" RenderTransformOrigin="0.245,0.588" Height="23" Click="Update_Click"/>
         <TextBox x:Name="URLTextBox" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top" Width="392" Margin="0,28,0,0"/>

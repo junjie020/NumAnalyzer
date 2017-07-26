@@ -14,6 +14,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 using System.Runtime.InteropServices;
+using Microsoft.WindowsAPICodePack.Dialogs;
 
 namespace NumAnalyzerGUI
 {
@@ -46,19 +47,30 @@ namespace NumAnalyzerGUI
 
 
 		[DllImport("NumanalyzerNative.dll", CallingConvention = CallingConvention.Cdecl)]
-		private static extern int fnNumanalyzerNative(char []tablename);
+		private static extern int fnNumanalyzerNative(char []tablename, char []output);
 
 		//[DllImport("NumanalyzerNative.dll", CallingConvention = CallingConvention.Cdecl)]
 		//private static extern int Add(int a, int c);
 
 		private void AnalyzeResult(object sender, RoutedEventArgs e)
 		{
-			StringBuilder ss = new StringBuilder(FileTextBox.Text);
+			if (FileTextBox.Text.Length != 0)
+			{
+				char[] bs = new char[1024];
+				FileTextBox.Text.CopyTo(0, bs, 0, System.Math.Min(512, FileTextBox.Text.Length));
+				char[] resultOutput = new char[1024 * 100];
+				fnNumanalyzerNative(bs, resultOutput);
+			}
+		}
 
-			StringBuilder outS = new StringBuilder(512);
-			
-			char []bs = new char[512];
-			fnNumanalyzerNative(bs);
+		private void BrownFile(object sender, RoutedEventArgs e)
+		{
+			CommonOpenFileDialog dlg = new CommonOpenFileDialog();
+
+			if (dlg.ShowDialog() == CommonFileDialogResult.Ok)
+			{
+				FileTextBox.Text = dlg.FileName;
+			}
 		}
 	}
 }
