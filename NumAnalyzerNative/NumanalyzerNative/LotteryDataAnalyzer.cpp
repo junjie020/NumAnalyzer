@@ -52,20 +52,34 @@ ErrorType LotteryDataAnalyzer::Analyze(LotteryAnalyzeOutputData &output)
 	return ErrorType::ET_NoError;
 }
 
+static void store_in_container(const ReciprocalCounterPair &pair, CounterContainerArray &container)
+{
+	auto first = std::get<0>(pair);
+	auto second = std::get<1>(pair);
+
+	if (first != 0)
+		std::get<0>(container).push_back(first);
+
+	if (second != 0)
+		std::get<1>(container).push_back(second);
+}
+
 static void analyze_num(uint32 num, 
 	ReciprocalCounter<BigNumChecker> &bigNumChecker, 
 	ReciprocalCounter<OddNumChecker> &oddNumChecker, 
 	CounterContainerArray &bigCounterContainer, 
 	CounterContainerArray &oddCounterContainer)
 {
-	if (bigNumChecker.Calc(num))
+	ReciprocalCounterPair pairBig;
+	if (bigNumChecker.Calc(num, pairBig))
 	{
-		bigNumChecker.StoreInContainer(bigCounterContainer);
+		store_in_container(pairBig, bigCounterContainer);
 	}
 
-	if (oddNumChecker.Calc(num))
+	ReciprocalCounterPair pairOdd;
+	if (oddNumChecker.Calc(num, pairOdd))
 	{
-		oddNumChecker.StoreInContainer(oddCounterContainer);
+		store_in_container(pairOdd, oddCounterContainer);
 	}
 }
 

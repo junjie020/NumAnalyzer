@@ -10,7 +10,7 @@ using CounterContainer = std::vector<uint32>;
 
 using CounterContainerArray = std::tuple<CounterContainer, CounterContainer>;
 
-
+using ReciprocalCounterPair = std::tuple<uint32, uint32>;
 
 struct LotteryLineData
 {
@@ -64,37 +64,25 @@ public:
 		, mNegativeCounter(0)
 	{}
 
-	bool Calc(uint32 num)
+	bool Calc(uint32 num, ReciprocalCounterPair &pair)
 	{
 		const bool bPositive = ReciprocalType::IsPositive(num);
+
+		std::get<0>(pair) = mPositiveCounter;
+		std::get<1>(pair) = mNegativeCounter;
 
 		uint32 *firstCounter = bPositive ? &mPositiveCounter : &mNegativeCounter;
 		uint32 *secondCounter = bPositive ? &mNegativeCounter : &mPositiveCounter;
 
-		uint32 backup = *firstCounter;
+		const bool bNotFirstTimeCalc = ((*firstCounter + *secondCounter) > 0);
+
+		uint32 firstBackup = *firstCounter;
+		uint32 secondBackup = *secondCounter;
 
 		++(*firstCounter);
 		*secondCounter = 0;
 		
-		return (backup != 0) == (*firstCounter != 0);
-	}
-
-	void StoreInContainer(std::tuple<CounterContainer, CounterContainer> &container)
-	{
-		auto counter = GetCounter();
-
-		const uint32 posCounter = std::get<0>(counter);
-		if (posCounter != 0)
-			std::get<0>(container).push_back(posCounter);
-
-		const uint32 negCounter = std::get<1>(counter);
-		if (negCounter != 0)
-			std::get<1>(container).push_back(negCounter);
-	}
-
-	std::tuple<uint32, uint32> GetCounter() const
-	{
-		return std::make_tuple(mPositiveCounter, mNegativeCounter);
+		return (firstBackup == 0) && (*firstCounter != 0) && bNotFirstTimeCalc;
 	}
 
 
