@@ -51,6 +51,6 @@ private:
 extern NUMANALYZERNATIVE_API int nNumanalyzerNative;
 
 extern "C"
-NUMANALYZERNATIVE_API int fnNumanalyzerNative(const char* path);
+NUMANALYZERNATIVE_API int fnNumanalyzerNative(const char* path, char *output);
 
 //extern "C" NUMANALYZERNATIVE_API int Add(int, int);

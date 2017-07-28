@@ -43,6 +43,12 @@ ErrorType LotteryDataAnalyzer::Analyze(LotteryAnalyzeOutputData &output)
 	StepNumAnalyer sa;
 	AnalyzeStepData(sa);
 
+
+	NumanalyerArray analyzers = { &ca, &sa };
+
+	std::string outputInfo;
+	FormatOutput(std::move(analyzers), outputInfo);
+
 	return ErrorType::ET_NoError;
 }
 
@@ -71,6 +77,91 @@ void LotteryDataAnalyzer::AnalyzeContinueData(ContinueNumAnalyer &analyer)
 void LotteryDataAnalyzer::AnalyzeStepData(StepNumAnalyer &analyer)
 {
 	analyer.Analyze(mLotteryData);
+}
+
+#ifdef _DEBUG
+static void check_valid(const CounterContainerArray &arr, uint32 totallNum)
+{
+	const CounterContainer &firstNum = std::get<0>(arr);
+	const CounterContainer &secondNum = std::get<1>(arr);
+
+	uint32 counter = 0;
+	for (auto n : firstNum)
+	{
+		counter += n;
+	}
+
+	for (auto n : secondNum)
+	{
+		counter += n;
+	}
+
+	BOOST_ASSERT(counter == totallNum);
+
+	auto maxNum = std::max(firstNum.size(), secondNum.size());
+	auto minNum = std::min(firstNum.size(), secondNum.size());
+	auto delta = maxNum - minNum;
+	BOOST_ASSERT(delta == 0 || delta == 1);
+}
+#endif // _DEBUG
+
+void LotteryDataAnalyzer::FormatOutput(NumanalyerArray &&analyzers, std::string &outputBuffer)
+{
+	std::ostringstream oss;
+
+	for (auto analyzer : analyzers)
+	{
+		const CounterContainerArray& bigCC = analyzer->GetBigCounterArray();
+
+#ifdef _DEBUG
+		check_valid(bigCC, mLotteryData.size());
+#endif // _DEBUG
+
+		oss << "Name : " << analyzer->GetName() << "\n";
+		oss << "Big : ";
+
+		auto bigC = std::get<0>(bigCC);
+		for (auto n : bigC)
+		{
+			oss << n << ",";
+		}
+
+		oss << "\n";
+
+		auto smallC = std::get<1>(bigCC);
+		for (auto n : smallC)
+		{
+			oss << n << ",";
+		}
+
+		oss << "\n";
+			
+
+		const CounterContainerArray& oddCC = analyzer->GetOddCounterArray();
+
+#ifdef _DEBUG
+		check_valid(oddCC, mLotteryData.size());
+#endif // _DEBUG
+
+		oss << "Odd : ";
+
+		auto oddC = std::get<0>(oddCC);
+		for (auto n : oddC)
+		{
+			oss << n << ",";
+		}
+
+		oss << "\n";
+
+		auto evenC = std::get<1>(oddCC);
+
+		for (auto n : evenC)
+		{
+			oss << n << ",";
+		}
+
+		oss << "\n";
+	}
 }
 
 ErrorType LotteryDataAnalyzer::ReadDataFromFile()
@@ -137,5 +228,17 @@ void ContinueNumAnalyer::Analyze(const LotteryLineDataArray &lotteryDataArray)
 
 void StepNumAnalyer::Analyze(const LotteryLineDataArray &lotteryDataArray)
 {
+	for (uint32 ii = 0; ii < 10; ++ii)
+	{
+		Analyze(lotteryDataArray, ii, 0);
+		Analyze(lotteryDataArray, ii, 1);
+	}
+}
 
+void StepNumAnalyer::Analyze(const LotteryLineDataArray &lotteryDataArray, uint32 colIdx, uint32 begIdx)
+{
+	for (uint32 iStep = 0; iStep < lotteryDataArray.size(); iStep += 2)
+	{
+		analyze_num(lotteryDataArray[iStep].lineData[colIdx].num, mBigNumChecker, mOddNumChecker, mBigCounterContainer, mOddCounterContainer);
+	}
 }

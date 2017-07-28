@@ -45,6 +45,13 @@ namespace NumAnalyzerGUI
 			System.Console.WriteLine("url text box string : " + Update.Name);
 		}
 
+		//[StructLayout(LayoutKind.Sequential)]
+		//public struct AnalyzeResultInfo
+		//{
+		//	public float fff;
+		//	public int outputInfoCount;			
+		//}
+
 
 		[DllImport("NumanalyzerNative.dll", CallingConvention = CallingConvention.Cdecl)]
 		private static extern int fnNumanalyzerNative(char []tablename, char []output);
@@ -60,7 +67,16 @@ namespace NumAnalyzerGUI
 				FileTextBox.Text.CopyTo(0, bs, 0, System.Math.Min(512, FileTextBox.Text.Length));
 				char[] resultOutput = new char[1024 * 100];
 				fnNumanalyzerNative(bs, resultOutput);
+
+				FormatOutputResult(resultOutput);
 			}
+		}
+
+		private void FormatOutputResult(char []output)
+		{
+			string ss = new string(output);
+
+
 		}
 
 		private void BrownFile(object sender, RoutedEventArgs e)
