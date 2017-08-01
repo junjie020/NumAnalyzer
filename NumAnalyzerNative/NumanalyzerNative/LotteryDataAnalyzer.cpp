@@ -128,7 +128,7 @@ void LotteryDataAnalyzer::FormatOutput(NumanalyerArray &&analyzers, std::string 
 		const CounterContainerArray& bigCC = analyzer->GetBigCounterArray();
 
 #ifdef _DEBUG
-		check_valid(bigCC, mLotteryData.size());
+		check_valid(bigCC, mLotteryData.size() * 10);
 #endif // _DEBUG
 
 		oss << "Name : " << analyzer->GetName() << "\n";
@@ -154,7 +154,7 @@ void LotteryDataAnalyzer::FormatOutput(NumanalyerArray &&analyzers, std::string 
 		const CounterContainerArray& oddCC = analyzer->GetOddCounterArray();
 
 #ifdef _DEBUG
-		check_valid(oddCC, mLotteryData.size());
+		check_valid(oddCC, mLotteryData.size() * 10);
 #endif // _DEBUG
 
 		oss << "Odd : ";
@@ -176,6 +176,8 @@ void LotteryDataAnalyzer::FormatOutput(NumanalyerArray &&analyzers, std::string 
 
 		oss << "\n";
 	}
+
+	outputBuffer = oss.str();
 }
 
 ErrorType LotteryDataAnalyzer::ReadDataFromFile()
@@ -237,6 +239,12 @@ void ContinueNumAnalyer::Analyze(const LotteryLineDataArray &lotteryDataArray)
 			analyze_num(lotteryLine.lineData[ii].num, mBigNumChecker, mOddNumChecker, mBigCounterContainer, mOddCounterContainer);
 		}
 	}
+
+	auto bigPair = mBigNumChecker.GetCounter();
+	store_in_container(bigPair, mBigCounterContainer);
+
+	auto oddPair = mOddNumChecker.GetCounter();
+	store_in_container(oddPair, mOddCounterContainer);
 	//@}
 }
 
@@ -247,6 +255,12 @@ void StepNumAnalyer::Analyze(const LotteryLineDataArray &lotteryDataArray)
 		Analyze(lotteryDataArray, ii, 0);
 		Analyze(lotteryDataArray, ii, 1);
 	}
+
+	auto bigPair = mBigNumChecker.GetCounter();
+	store_in_container(bigPair, mBigCounterContainer);
+
+	auto oddPair = mOddNumChecker.GetCounter();
+	store_in_container(oddPair, mOddCounterContainer);
 }
 
 void StepNumAnalyer::Analyze(const LotteryLineDataArray &lotteryDataArray, uint32 colIdx, uint32 begIdx)

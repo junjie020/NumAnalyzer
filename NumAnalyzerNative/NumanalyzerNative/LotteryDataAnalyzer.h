@@ -85,6 +85,11 @@ public:
 		return (firstBackup == 0) && (*firstCounter != 0) && bNotFirstTimeCalc;
 	}
 
+	ReciprocalCounterPair GetCounter() const
+	{
+		return std::make_tuple(mPositiveCounter, mNegativeCounter);
+	}
+
 
 private:
 	uint32 mPositiveCounter;
