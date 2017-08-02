@@ -54,7 +54,7 @@ namespace NumAnalyzerGUI
 
 
 		[DllImport("NumanalyzerNative.dll", CallingConvention = CallingConvention.Cdecl)]
-		private static extern int fnNumanalyzerNative(char []tablename, char []output);
+		private static extern int fnNumanalyzerNative(string filePath, StringBuilder output);
 
 		//[DllImport("NumanalyzerNative.dll", CallingConvention = CallingConvention.Cdecl)]
 		//private static extern int Add(int a, int c);
@@ -63,12 +63,12 @@ namespace NumAnalyzerGUI
 		{
 			if (FileTextBox.Text.Length != 0)
 			{
-				char[] bs = new char[1024];
-				FileTextBox.Text.CopyTo(0, bs, 0, System.Math.Min(512, FileTextBox.Text.Length));
-				char[] resultOutput = new char[1024 * 100];
-				fnNumanalyzerNative(bs, resultOutput);
+				StringBuilder outputResult = new StringBuilder(1024*1024);
+				fnNumanalyzerNative(FileTextBox.Text, outputResult);
 
-				FormatOutputResult(resultOutput);
+				//FormatOutputResult(resultOutput);
+
+				OutputWin.Text = outputResult.ToString();				
 			}
 		}
 

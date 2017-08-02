@@ -163,8 +163,7 @@ public:
 
 	ErrorType ConstructData();
 
-	ErrorType Analyze(LotteryAnalyzeOutputData &output);
-
+	ErrorType Analyze(std::string &outputInfo);
 private:
 	void AnalyzeContinueData(ContinueNumAnalyer &analyer);
 	void AnalyzeStepData(StepNumAnalyer &analyer);

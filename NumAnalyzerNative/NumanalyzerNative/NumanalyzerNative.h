@@ -35,7 +35,7 @@ public:
 	~CNumanalyzerNative();
 	
 	// TODO: add your methods here.
-	ErrorType Run(const std::wstring &path);
+	ErrorType Run(const std::wstring &path, std::string &outputInfo);
 
 	void Clear();
 

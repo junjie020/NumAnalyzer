@@ -20,7 +20,16 @@ extern "C"
 		CNumanalyzerNative::Get().Clear();
 
 		const std::wstring wPath = is_empty_c_str(path) ? L"" : utf8_to_utf16(std::string(path));
-		return int(CNumanalyzerNative::Get().Run(wPath));
+
+		std::string outputInfo;
+		ErrorType result = CNumanalyzerNative::Get().Run(wPath, outputInfo);
+
+		if (result == ErrorType::ET_NoError)
+		{
+			std::strcpy(output, &*outputInfo.begin());
+		}
+
+		return int32(result);
 	}
 }
 
@@ -41,7 +50,7 @@ CNumanalyzerNative::~CNumanalyzerNative()
 	ReleaseLotteryAnalyzer();
 }
 
-ErrorType CNumanalyzerNative::Run(const std::wstring &path)
+ErrorType CNumanalyzerNative::Run(const std::wstring &path, std::string &outputInfo)
 {
 	ReleaseLotteryAnalyzer();
 
@@ -51,8 +60,8 @@ ErrorType CNumanalyzerNative::Run(const std::wstring &path)
 	if (ErrorType::ET_NoError != result)
 		return result;
 
-	LotteryAnalyzeOutputData output;
-	return mLotteryAnalyzer->Analyze(output);
+	
+	return mLotteryAnalyzer->Analyze(outputInfo);
 }
 
 void CNumanalyzerNative::Clear()

@@ -32,7 +32,7 @@ ErrorType LotteryDataAnalyzer::ConstructData()
 	return result;
 }
 
-ErrorType LotteryDataAnalyzer::Analyze(LotteryAnalyzeOutputData &output)
+ErrorType LotteryDataAnalyzer::Analyze(std::string &outputInfo)
 {
 	if (mLotteryData.empty())
 		return ErrorType::ET_AnalyzeEmptyData;
@@ -45,8 +45,6 @@ ErrorType LotteryDataAnalyzer::Analyze(LotteryAnalyzeOutputData &output)
 
 
 	NumanalyerArray analyzers = { &ca, &sa };
-
-	std::string outputInfo;
 	FormatOutput(std::move(analyzers), outputInfo);
 
 	return ErrorType::ET_NoError;
@@ -178,6 +176,8 @@ void LotteryDataAnalyzer::FormatOutput(NumanalyerArray &&analyzers, std::string 
 	}
 
 	outputBuffer = oss.str();
+
+	OutputDebugStringA(outputBuffer.c_str());
 }
 
 ErrorType LotteryDataAnalyzer::ReadDataFromFile()
