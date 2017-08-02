@@ -39,9 +39,6 @@ namespace NumAnalyzerGUI
 
 		private void Update_Click(object sender, RoutedEventArgs e)
 		{
-			OutputWin.Text = URLTextBox.Text;
-
-
 			System.Console.WriteLine("url text box string : " + Update.Name);
 		}
 
@@ -68,7 +65,9 @@ namespace NumAnalyzerGUI
 
 				//FormatOutputResult(resultOutput);
 
-				OutputWin.Text = outputResult.ToString();				
+				//TabC.
+
+				//OutputWin.Text = outputResult.ToString();				
 			}
 		}
 
