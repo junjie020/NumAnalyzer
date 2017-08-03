@@ -166,7 +166,7 @@ namespace NumAnalyzerGUI
 			uint[] oddNumbers	= ConvertStringToUIntList(result.odd);
 			uint[] evenNumbers	= ConvertStringToUIntList(result.even);
 
-			FormatString(oddNumbers, evenNumbers, "奇", "偶", ref formatStr);
+			FormatString(oddNumbers, evenNumbers, "单", "双", ref formatStr);
 
 			return formatStr;
 		}
