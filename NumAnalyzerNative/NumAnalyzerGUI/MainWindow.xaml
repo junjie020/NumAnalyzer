@@ -14,16 +14,24 @@
         <Button x:Name="Analyze" Content="分析" HorizontalAlignment="Left" Margin="547,421,0,0" VerticalAlignment="Top" Width="75" Click="AnalyzeResult" Height="24"/>
         <TabControl x:Name="TabC" HorizontalAlignment="Left" Height="349" Margin="10,67,0,0" VerticalAlignment="Top" Width="612">
             <TabItem x:Name="ContinueTab" Header="连续">
-                <TextBox x:Name="ContinueTabContent" Margin="10" TextWrapping="Wrap" Text="TextBox" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"/>
+                <ScrollViewer>
+                    <TextBox x:Name="ContinueTabContent" Margin="10" TextWrapping="Wrap" Text="TextBox" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"/>
+                </ScrollViewer>
             </TabItem>
             <TabItem x:Name="StepTab" Header="隔断">
+                <ScrollViewer>
                 <TextBox x:Name="StepTabContent" Margin="10" TextWrapping="Wrap" Text="TextBox" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"/>
+                    </ScrollViewer>
             </TabItem>
             <TabItem x:Name="NumContinueTab" Header="数字连续" HorizontalAlignment="Left" Height="19" VerticalAlignment="Top" Width="59">
-                <TextBox x:Name="NumContinueTabContent" Margin="10" TextWrapping="Wrap" Text="TextBox" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"/>                
+                <ScrollViewer>
+                <TextBox x:Name="NumContinueTabContent" Margin="10" TextWrapping="Wrap" Text="TextBox" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"/>
+                    </ScrollViewer>
             </TabItem>
             <TabItem x:Name="NumStepTab" Header="数字隔断" HorizontalAlignment="Left" Height="19" VerticalAlignment="Top" Width="59">
+                <ScrollViewer>
                 <TextBox x:Name="NumStepTabContent" Margin="10" TextWrapping="Wrap" Text="TextBox" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"/>
+                    </ScrollViewer>
             </TabItem>
         </TabControl>
     </Grid>
