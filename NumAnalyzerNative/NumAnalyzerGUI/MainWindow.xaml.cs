@@ -29,18 +29,14 @@ namespace NumAnalyzerGUI
 			InitializeComponent();
 		}
 
-
-		private int mCounter;
-
 		private void MyClick(object obj, RoutedEventArgs e)
-		{
-			++mCounter;
-			System.Console.WriteLine("object name :{0}, event string :{1}", obj.ToString(), e.ToString());
+		{			
+			//System.Console.WriteLine("object name :{0}, event string :{1}", obj.ToString(), e.ToString());
 		}
 
 		private void Update_Click(object sender, RoutedEventArgs e)
 		{
-			System.Console.WriteLine("url text box string : " + Update.Name);
+			//System.Console.WriteLine("url text box string : " + Update.Name);
 		}
 
 		//[StructLayout(LayoutKind.Sequential)]
@@ -287,15 +283,6 @@ namespace NumAnalyzerGUI
 				}
 
 			}
-
-
-
-
-
-
-			//string ss = new string(output);
-
-
 		}
 
 		private void BrownFile(object sender, RoutedEventArgs e)
