@@ -104,10 +104,10 @@ struct OddNumChecker {
 	static bool IsPositive(uint32 num) { return IsOddNum(num); }
 };
 
-class NumAnalyzer
+class IDataAnalyzer
 {
 public:
-	NumAnalyzer(const std::string &name) : mName(name){}
+	IDataAnalyzer(const std::string &name) : mName(name){}
 
 	virtual void Analyze(const LotteryLineDataArray &lotteryDataArray) = 0;
 
@@ -136,24 +136,24 @@ protected:
 };
 
 
-class ContinueNumAnalyer : public NumAnalyzer
+class ContinueAnalyer : public IDataAnalyzer
 {
 public:
-	ContinueNumAnalyer() : NumAnalyzer("ContinueNumAnalyer"){}
+	ContinueAnalyer() : IDataAnalyzer("ContinueAnalyzer"){}
 	virtual void Analyze(const LotteryLineDataArray &lotteryDataArray) override;
 };
 
-class StepNumAnalyer : public NumAnalyzer
+class StepAnalyer : public IDataAnalyzer
 {
 public:
-	StepNumAnalyer() : NumAnalyzer("StepNumAnalyer") {}
+	StepAnalyer() : IDataAnalyzer("StepAnalyzer") {}
 	virtual void Analyze(const LotteryLineDataArray &lotteryDataArray) override;
 
 private:	
 	void Analyze(const LotteryLineDataArray &lotteryDataArray, uint32 colIdx, uint32 begIdx);
 };
 
-using NumanalyerArray = std::vector<NumAnalyzer*>;
+using NumanalyerArray = std::vector<IDataAnalyzer*>;
 
 
 class LotteryDataAnalyzer
@@ -165,8 +165,8 @@ public:
 
 	ErrorType Analyze(std::string &outputInfo);
 private:
-	void AnalyzeContinueData(ContinueNumAnalyer &analyer);
-	void AnalyzeStepData(StepNumAnalyer &analyer);
+	void AnalyzeContinueData(ContinueAnalyer &analyer);
+	void AnalyzeStepData(StepAnalyer &analyer);
 
 	void FormatOutput(NumanalyerArray &&analyzers, std::string &outputInfo);
 

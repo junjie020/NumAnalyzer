@@ -37,10 +37,10 @@ ErrorType LotteryDataAnalyzer::Analyze(std::string &outputInfo)
 	if (mLotteryData.empty())
 		return ErrorType::ET_AnalyzeEmptyData;
 
-	ContinueNumAnalyer ca;
+	ContinueAnalyer ca;
 	AnalyzeContinueData(ca);
 
-	StepNumAnalyer sa;
+	StepAnalyer sa;
 	AnalyzeStepData(sa);
 
 
@@ -81,12 +81,12 @@ static void analyze_num(uint32 num,
 	}
 }
 
-void LotteryDataAnalyzer::AnalyzeContinueData(ContinueNumAnalyer &analyer)
+void LotteryDataAnalyzer::AnalyzeContinueData(ContinueAnalyer &analyer)
 {
 	analyer.Analyze(mLotteryData);
 }
 
-void LotteryDataAnalyzer::AnalyzeStepData(StepNumAnalyer &analyer)
+void LotteryDataAnalyzer::AnalyzeStepData(StepAnalyer &analyer)
 {
 	analyer.Analyze(mLotteryData);
 }
@@ -109,6 +109,8 @@ static void check_valid(const CounterContainerArray &arr, uint32 totallNum)
 	}
 
 	BOOST_ASSERT(counter == totallNum);
+
+	
 
 	auto maxNum = std::max(firstNum.size(), secondNum.size());
 	auto minNum = std::min(firstNum.size(), secondNum.size());
@@ -139,6 +141,7 @@ void LotteryDataAnalyzer::FormatOutput(NumanalyerArray &&analyzers, std::string 
 		}
 
 		oss << "\n";
+		oss << "Small : ";
 
 		auto smallC = std::get<1>(bigCC);
 		for (auto n : smallC)
@@ -164,6 +167,7 @@ void LotteryDataAnalyzer::FormatOutput(NumanalyerArray &&analyzers, std::string 
 		}
 
 		oss << "\n";
+		oss << "Even : ";
 
 		auto evenC = std::get<1>(oddCC);
 
@@ -229,7 +233,7 @@ bool IsBigNum(uint32 num)
 	return num > 5;
 }
 
-void ContinueNumAnalyer::Analyze(const LotteryLineDataArray &lotteryDataArray)
+void ContinueAnalyer::Analyze(const LotteryLineDataArray &lotteryDataArray)
 {
 	//{@ continue case
 	for (uint32 ii = 0; ii < 10; ++ii)
@@ -248,7 +252,7 @@ void ContinueNumAnalyer::Analyze(const LotteryLineDataArray &lotteryDataArray)
 	//@}
 }
 
-void StepNumAnalyer::Analyze(const LotteryLineDataArray &lotteryDataArray)
+void StepAnalyer::Analyze(const LotteryLineDataArray &lotteryDataArray)
 {
 	for (uint32 ii = 0; ii < 10; ++ii)
 	{
@@ -263,7 +267,7 @@ void StepNumAnalyer::Analyze(const LotteryLineDataArray &lotteryDataArray)
 	store_in_container(oddPair, mOddCounterContainer);
 }
 
-void StepNumAnalyer::Analyze(const LotteryLineDataArray &lotteryDataArray, uint32 colIdx, uint32 begIdx)
+void StepAnalyer::Analyze(const LotteryLineDataArray &lotteryDataArray, uint32 colIdx, uint32 begIdx)
 {
 	for (uint32 iStep = 0; iStep < lotteryDataArray.size(); iStep += 2)
 	{

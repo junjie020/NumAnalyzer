@@ -13,20 +13,17 @@
         <TextBox x:Name="URLTextBox" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top" Width="542" Margin="0,28,0,0"/>
         <Button x:Name="Analyze" Content="分析" HorizontalAlignment="Left" Margin="547,421,0,0" VerticalAlignment="Top" Width="75" Click="AnalyzeResult" Height="24"/>
         <TabControl x:Name="TabC" HorizontalAlignment="Left" Height="349" Margin="10,67,0,0" VerticalAlignment="Top" Width="612">
-            <TabItem x:Name="BigSmallTab" Header="大小">
-                <Grid Background="#FFE5E5E5">
-                    <TextBox x:Name="BigSmamlTabContent" Margin="10" TextWrapping="Wrap" Text="TextBox" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"/>
-                </Grid>
+            <TabItem x:Name="ContinueTab" Header="连续">
+                <TextBox x:Name="ContinueTabContent" Margin="10" TextWrapping="Wrap" Text="TextBox" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"/>
             </TabItem>
-            <TabItem x:Name="OddEvenTab" Header="奇偶">
-                <Grid Background="#FFE5E5E5">
-                    <TextBox x:Name="OddEvenTabContent" Margin="10" TextWrapping="Wrap" Text="TextBox" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"/>
-                </Grid>
+            <TabItem x:Name="StepTab" Header="隔断">
+                <TextBox x:Name="StepTabContent" Margin="10" TextWrapping="Wrap" Text="TextBox" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"/>
             </TabItem>
-            <TabItem Header="数字" HorizontalAlignment="Left" Height="19" VerticalAlignment="Top" Width="59">
-                <Grid x:Name="NumTab" Background="#FFE5E5E5">
-                    <TextBox x:Name="NumTabContent" Margin="10" TextWrapping="Wrap" Text="TextBox" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"/>
-                </Grid>
+            <TabItem x:Name="NumContinueTab" Header="数字连续" HorizontalAlignment="Left" Height="19" VerticalAlignment="Top" Width="59">
+                <TextBox x:Name="NumContinueTabContent" Margin="10" TextWrapping="Wrap" Text="TextBox" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"/>                
+            </TabItem>
+            <TabItem x:Name="NumStepTab" Header="数字隔断" HorizontalAlignment="Left" Height="19" VerticalAlignment="Top" Width="59">
+                <TextBox x:Name="NumStepTabContent" Margin="10" TextWrapping="Wrap" Text="TextBox" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"/>
             </TabItem>
         </TabControl>
     </Grid>
