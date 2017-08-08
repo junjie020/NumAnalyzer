@@ -1,0 +1,14 @@
+G:\github\NumAnalyzer\NumAnalyzerNative\Release\NumAnalyzerGUI.exe.config
+G:\github\NumAnalyzer\NumAnalyzerNative\Release\NumAnalyzerGUI.exe
+G:\github\NumAnalyzer\NumAnalyzerNative\Release\NumAnalyzerGUI.pdb
+G:\github\NumAnalyzer\NumAnalyzerNative\NumAnalyzerGUI\obj\Release\NumAnalyzerGUI.csprojResolveAssemblyReference.cache
+G:\github\NumAnalyzer\NumAnalyzerNative\NumAnalyzerGUI\obj\Release\MainWindow.g.cs
+G:\github\NumAnalyzer\NumAnalyzerNative\NumAnalyzerGUI\obj\Release\App.g.cs
+G:\github\NumAnalyzer\NumAnalyzerNative\NumAnalyzerGUI\obj\Release\NumAnalyzerGUI_MarkupCompile.cache
+G:\github\NumAnalyzer\NumAnalyzerNative\NumAnalyzerGUI\obj\Release\NumAnalyzerGUI_MarkupCompile.lref
+G:\github\NumAnalyzer\NumAnalyzerNative\NumAnalyzerGUI\obj\Release\MainWindow.baml
+G:\github\NumAnalyzer\NumAnalyzerNative\NumAnalyzerGUI\obj\Release\NumAnalyzerGUI.g.resources
+G:\github\NumAnalyzer\NumAnalyzerNative\NumAnalyzerGUI\obj\Release\NumAnalyzerGUI.Properties.Resources.resources
+G:\github\NumAnalyzer\NumAnalyzerNative\NumAnalyzerGUI\obj\Release\NumAnalyzerGUI.csproj.GenerateResource.Cache
+G:\github\NumAnalyzer\NumAnalyzerNative\NumAnalyzerGUI\obj\Release\NumAnalyzerGUI.exe
+G:\github\NumAnalyzer\NumAnalyzerNative\NumAnalyzerGUI\obj\Release\NumAnalyzerGUI.pdb

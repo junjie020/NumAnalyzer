@@ -96,61 +96,144 @@ private:
 	uint32 mNegativeCounter;
 };
 
-struct BigNumChecker {
+struct BigSmallNumChecker {
 	static bool IsPositive(uint32 num) { return IsBigNum(num); }
 };
+
 
 struct OddNumChecker {
 	static bool IsPositive(uint32 num) { return IsOddNum(num); }
 };
+
+
+class DataFilter
+{
+public:
+	DataFilter(){}
+	void Filter(const LotteryLineDataArray &lotteryDataArray);
+
+	struct DataCounter
+	{
+		ReciprocalCounter<BigSmallNumChecker>	bigNumChecker;
+		ReciprocalCounter<OddNumChecker>	oddNumChecker;
+
+		CounterContainerArray				bigCounterContainer;
+		CounterContainerArray				oddCounterContainer;
+	};
+
+	using ColumnCounters = std::array<DataCounter, DATA_COLUMN_NUM>;
+	ColumnCounters mCounters;
+};
+
+using ColumnContainers = std::array<const CounterContainerArray*, DATA_COLUMN_NUM>;
+
+struct AnalyzeResult
+{
+	struct ResultCounter
+	{
+		enum NumType : uint8
+		{
+			Big		= 0,
+			Small,
+			Odd,	
+			Even,
+			Unknown,
+		};
+
+		
+		ResultCounter() 
+			: numCounter(0)			
+		{}
+		
+
+		struct OriginInfo
+		{
+			OriginInfo() : type(Unknown){}
+
+			std::vector<uint32>	numbers;
+			NumType				type;
+		};
+
+		std::vector<OriginInfo>	info;
+		uint32	numCounter;		
+	};
+
+	using TheCounter = uint32;
+	using ResultCounterMap	= std::map<TheCounter, ResultCounter>;
+	using ColumnRecords		= std::array<ResultCounterMap, DATA_COLUMN_NUM>;
+
+	ColumnRecords	continueRecords;
+	ColumnRecords	stepRecords;
+};
+
+struct AnalyzeResultAll
+{
+	AnalyzeResult bigSmall;
+	AnalyzeResult oddEven;
+	AnalyzeResult numBigSmall;
+	AnalyzeResult numOddEven;
+};
+
 
 class IDataAnalyzer
 {
 public:
 	IDataAnalyzer(const std::string &name) : mName(name){}
 
-	virtual void Analyze(const LotteryLineDataArray &lotteryDataArray) = 0;
+	virtual void Analyze(const LotteryLineDataArray &lotteryDataArray, const DataFilter &filter, AnalyzeResult &result) = 0;
+
+
+protected:
+	void Analyze(const LotteryLineDataArray &, const ColumnContainers &containers, 
+		const std::tuple<AnalyzeResult::ResultCounter::NumType, AnalyzeResult::ResultCounter::NumType> &types, 
+		AnalyzeResult &result);
 
 public:
 	std::string GetName() const {
 		return mName;
 	}
 
-	const CounterContainerArray& GetBigCounterArray() const {
-		return mBigCounterContainer;
-	}
-
-	const CounterContainerArray& GetOddCounterArray() const {
-		return mOddCounterContainer;
-	}
-
-protected:
-	ReciprocalCounter<BigNumChecker> mBigNumChecker;
-	ReciprocalCounter<OddNumChecker> mOddNumChecker;
-
-	CounterContainerArray mBigCounterContainer;
-	CounterContainerArray mOddCounterContainer;
-
-protected:
+protected:	
 	std::string mName;
 };
 
 
-class ContinueAnalyer : public IDataAnalyzer
+//class ContinueAnalyzer : public IDataAnalyzer
+//{
+//public:
+//	ContinueAnalyzer() : IDataAnalyzer("ContinueAnalyzer"){}
+//	virtual void Analyze(const LotteryLineDataArray &lotteryDataArray) override;
+//};
+//
+//class StepAnalyzer : public IDataAnalyzer
+//{
+//public:
+//	StepAnalyzer() : IDataAnalyzer("StepAnalyzer") {}
+//	virtual void Analyze(const LotteryLineDataArray &lotteryDataArray) override;
+//
+//private:	
+//	void Analyze(const LotteryLineDataArray &lotteryDataArray, uint32 colIdx, uint32 begIdx);
+//};
+
+
+class BigSmallAnalyzer : public IDataAnalyzer
 {
 public:
-	ContinueAnalyer() : IDataAnalyzer("ContinueAnalyzer"){}
-	virtual void Analyze(const LotteryLineDataArray &lotteryDataArray) override;
+	BigSmallAnalyzer() : IDataAnalyzer("BigSmallAnalyzer"){}
+	virtual void Analyze(const LotteryLineDataArray &lotteryDataArray, const DataFilter &filter, AnalyzeResult &result) override;
 };
 
-class StepAnalyer : public IDataAnalyzer
+class OddEvenAnalyzer : public IDataAnalyzer
 {
 public:
-	StepAnalyer() : IDataAnalyzer("StepAnalyzer") {}
-	virtual void Analyze(const LotteryLineDataArray &lotteryDataArray) override;
+	OddEvenAnalyzer() : IDataAnalyzer("OddEvenAnalyzer") {}
+	virtual void Analyze(const LotteryLineDataArray &lotteryDataArray, const DataFilter &filter, AnalyzeResult &result) override;
+};
 
-private:	
-	void Analyze(const LotteryLineDataArray &lotteryDataArray, uint32 colIdx, uint32 begIdx);
+class NumberBigSmallAnalyzer : public IDataAnalyzer
+{
+public:
+
 };
 
 using NumanalyerArray = std::vector<IDataAnalyzer*>;
@@ -165,8 +248,8 @@ public:
 
 	ErrorType Analyze(std::string &outputInfo);
 private:
-	void AnalyzeContinueData(ContinueAnalyer &analyer);
-	void AnalyzeStepData(StepAnalyer &analyer);
+	//void AnalyzeContinueData(ContinueAnalyzer &analyer);
+	//void AnalyzeStepData(StepAnalyzer &analyer);
 
 	void FormatOutput(NumanalyerArray &&analyzers, std::string &outputInfo);
 
@@ -178,4 +261,6 @@ private:
 	std::string		mDataContent;
 
 	LotteryLineDataArray	mLotteryData;
+
+	DataFilter		mFilter;
 };
