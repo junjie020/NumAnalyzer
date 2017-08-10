@@ -39,3 +39,43 @@ bool is_empty_c_str(const CharType *ch)
 	return ch == nullptr || *ch == '\0';
 }
 
+template<class StrType>
+StrType get_parent_path(const StrType &ss)
+{
+	auto pos = ss.rfind('\\');
+	if (pos == StrType::npos)
+	{
+		pos = ss.rfind('/');
+	}
+
+	if (pos == StrType::npos)
+		return StrType();
+
+	return ss.substr(0, pos);
+}
+
+template<class StrType>
+StrType join_path(const StrType &pp, const StrType &part, bool backSlash = false)
+{
+	if (pp.back() != '/' && pp.back() != '\\')
+	{
+		StrType ss;
+		ss.append(1, typename StrType::traits_type::char_type(backSlash ? '\\' : '/'));
+
+		return pp + ss + part;
+	}
+	
+	return pp + part;
+}
+
+template<class StrType, typename T>
+StrType join_path(const StrType &pp, const T* part, bool backSlash = false)
+{
+	return join_path(pp, StrType(part), backSlash);
+}
+
+template<class StrType, typename T>
+StrType join_path(const T* pp, const StrType& part, bool backSlash = false)
+{
+	return join_path(StrType(pp), part, backSlash);
+}

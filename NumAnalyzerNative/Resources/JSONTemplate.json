@@ -1,3 +1,47 @@
 {
+	"BigSmall" : 
+	{
+		"Continue" : 
+		{			
+		},
+		"Step" : 
+		{
+			
+		}
+	},
 	
+	"OddEven" :
+	{
+		"Continue" : 
+		{
+	
+		},
+		"Step" : 
+		{
+
+		}
+	},
+	
+	"NumBigSmall" : 
+	{
+		"Continue" : 
+		{
+
+		},
+		"Step" : 
+		{
+
+		}
+	},
+	
+	"NumOddEven" : 
+	{
+		"Continue" : 
+		{
+
+		},
+		"Step" : 
+		{
+		}
+	}
 }

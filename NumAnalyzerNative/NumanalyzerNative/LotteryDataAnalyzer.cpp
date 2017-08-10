@@ -5,6 +5,9 @@
 
 #include "boost/algorithm/string.hpp"
 
+#include "rapidjson/include/rapidjson/document.h"
+#include "rapidjson/include/rapidjson/stringbuffer.h"
+#include "rapidjson/include/rapidjson/writer.h"
 
 LotteryDataAnalyzer::LotteryDataAnalyzer(const std::wstring &dataPath)
 	:mDataPath(dataPath)
@@ -54,8 +57,7 @@ ErrorType LotteryDataAnalyzer::Analyze(std::string &outputInfo)
 	OddEvenAnalyzer oe;
 	oe.Analyze(mLotteryData, mFilter, results.oddEven);
 
-	
-	FormatOutput({ &bs, &oe }, outputInfo);
+	FormatOutput(results, outputInfo);
 
 	return ErrorType::ET_NoError;
 }
@@ -91,9 +93,153 @@ static void analyze_num(uint32 num,
 	}
 }
 
+static const char* get_column_name(uint32 iCol)
+{
+	const char* names[] = { "Col0", "Col1", "Col2", "Col3", "Col4", "Col5" , "Col6", "Col7" , "Col8", "Col9" };
+
+	BOOST_ASSERT(iCol < _countof(names));
+
+	return names[iCol];
+}
+
+static const char* get_data_type_name(AnalyzeResult::ResultCounter::NumType type)
+{
+	switch (type)
+	{
+	case AnalyzeResult::ResultCounter::Big:
+		return "Big";
+	case AnalyzeResult::ResultCounter::Small:
+		return "Small";
+	case AnalyzeResult::ResultCounter::Odd:
+		return "Odd";
+	case AnalyzeResult::ResultCounter::Even:
+		return "Even";
+	case AnalyzeResult::ResultCounter::Unknown:
+	default:
+		return "Unknown";
+	}
+}
+
+static void format_record(const AnalyzeResult::ColumnRecords &records, rapidjson::Document &doc, const char* analyzeName, const char* recordTypename)
+{
+	using namespace rapidjson;
+	Value::MemberIterator recordMem = doc[analyzeName].FindMember(recordTypename);
+	for (uint32 ii = 0; ii < records.size(); ++ii)
+	{
+		const std::string colName = get_column_name(ii);
+		BOOST_ASSERT(recordMem->value.FindMember(colName) == recordMem->value.MemberEnd());
+
+		Value colData;
+		const AnalyzeResult::ResultCounterMap &colResults = records[ii];
+		for (const auto &cr : colResults)
+		{
+			auto& numCounterValue = colData.AddMember("NumberCounter", Value(), doc.GetAllocator());
+
+			{
+				Value counterValue;
+				counterValue.SetUint(cr.second.numCounter);
+				numCounterValue.AddMember("Counter", std::move(counterValue), doc.GetAllocator());
+			}
+
+			auto &originInfoValue = numCounterValue.AddMember("OriginInfo", Value(), doc.GetAllocator());
+
+			for (auto &info : cr.second.info)
+			{
+				Value dataType;
+				dataType.SetString(get_data_type_name(info.type), doc.GetAllocator());
+				originInfoValue.AddMember("DataType", dataType, doc.GetAllocator());
+
+				auto &originNums = originInfoValue.AddMember("OriginNum", Value(), doc.GetAllocator());
+
+				for (auto &num : info.numbers)
+				{
+					auto &numArrayValue = originNums.SetArray();
+					numArrayValue.PushBack(num, doc.GetAllocator());
+				}
+			}
+		}
+
+		recordMem->value.AddMember(StringRef(colName), std::move(colData), doc.GetAllocator());
+	}
+
+}
+
+static void format_result(const AnalyzeResult &result, rapidjson::Document &doc, const char* analyzeName)
+{
+	const char* ContinueName = "Continue";
+	const char* StepName = "Step";
+
+	BOOST_ASSERT(doc.FindMember(analyzeName) != doc.MemberEnd());
+
+	format_record(result.continueRecords, doc, analyzeName, ContinueName);
+	format_record(result.stepRecords, doc, analyzeName, StepName);
+}
+
+static std::string find_json_template_folder()
+{
+	std::wstring buffer;
+	buffer.resize(1024);
+	::_wgetcwd(&*buffer.begin(), buffer.size());
+
+	return utf16_to_utf8(get_parent_path(buffer));
+}
+
+static std::string read_json_template_content()
+{
+	const std::string jsonTemplatePath = join_path(find_json_template_folder(), "Resources\\JSONTemplate.json");
+
+	std::ifstream iff(jsonTemplatePath.c_str());
+	if (iff)
+	{
+		iff.seekg(0, std::ios::end);
+		size_t fileSize = size_t(iff.tellg());
+		iff.seekg(0, std::ios::beg);
+
+		std::string buffer;
+		buffer.resize(fileSize);
+		iff.read(&*buffer.begin(), fileSize);
+
+		return buffer;
+	}
+
+	return std::string();
+}
+
 void LotteryDataAnalyzer::FormatOutput(const AnalyzeResultAll &results, std::string &outputInfo)
 {
+	const std::string jsonTemplateContent = read_json_template_content();
+	
+	rapidjson::Document doc;
+	if (doc.Parse(jsonTemplateContent).HasParseError())
+	{
+		std::ostringstream oss;
+		oss << "Json template has error, error code is : " << uint32(doc.GetParseError()) << std::endl;
+		OutputDebugStringA(oss.str().c_str());
+		return;
+	}
 
+	struct AnalyzeResutPack
+	{
+		const AnalyzeResult *result;
+		const char* name;
+	};
+
+	AnalyzeResutPack resultPacks[] = {
+		&results.bigSmall, "BigSmall",
+		&results.oddEven, "OddEven",
+		&results.numBigSmall, "NumBigSmall",
+		&results.numOddEven, "NumOddEven",
+	};
+
+	for (const auto &pack : resultPacks)
+	{
+		format_result(*pack.result, doc, pack.name);
+	}
+
+	rapidjson::StringBuffer sb;
+	rapidjson::Writer<rapidjson::StringBuffer> writer(sb);
+	doc.Accept(writer); 
+	outputInfo = sb.GetString();
 }
 
 ErrorType LotteryDataAnalyzer::ReadDataFromFile()
@@ -144,50 +290,6 @@ bool IsBigNum(uint32 num)
 {
 	return num > 5;
 }
-
-
-
-//void ContinueAnalyzer::Analyze(const LotteryLineDataArray &lotteryDataArray)
-//{
-//	//{@ continue case
-//	for (uint32 ii = 0; ii < DATA_COLUMN_NUM; ++ii)
-//	{
-//		for (const auto &lotteryLine : lotteryDataArray)
-//		{
-//			analyze_num(lotteryLine.lineData[ii].num, mBigNumChecker, mOddNumChecker, mBigCounterContainer[ii], mOddCounterContainer[ii]);
-//		}
-//	}
-//
-//	auto bigPair = mBigNumChecker.GetCounter();
-//	store_in_container(bigPair, mBigCounterContainer);
-//
-//	auto oddPair = mOddNumChecker.GetCounter();
-//	store_in_container(oddPair, mOddCounterContainer);
-//	//@}
-//}
-//
-//void StepAnalyzer::Analyze(const LotteryLineDataArray &lotteryDataArray)
-//{
-//	for (uint32 ii = 0; ii < 10; ++ii)
-//	{
-//		Analyze(lotteryDataArray, ii, 0);
-//		Analyze(lotteryDataArray, ii, 1);
-//	}
-//
-//	auto bigPair = mBigNumChecker.GetCounter();
-//	store_in_container(bigPair, mBigCounterContainer);
-//
-//	auto oddPair = mOddNumChecker.GetCounter();
-//	store_in_container(oddPair, mOddCounterContainer);
-//}
-//
-//void StepAnalyzer::Analyze(const LotteryLineDataArray &lotteryDataArray, uint32 colIdx, uint32 begIdx)
-//{
-//	for (uint32 iStep = 0; iStep < lotteryDataArray.size(); iStep += 2)
-//	{
-//		analyze_num(lotteryDataArray[iStep].lineData[colIdx].num, mBigNumChecker, mOddNumChecker, mBigCounterContainer, mOddCounterContainer);
-//	}
-//}
 
 void DataFilter::Filter(const LotteryLineDataArray &lotteryDataArray)
 {
