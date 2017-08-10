@@ -44,10 +44,6 @@ ErrorType LotteryDataAnalyzer::Analyze(std::string &outputInfo)
 	//AnalyzeStepData(sa);
 
 
-	//NumanalyerArray analyzers = { &ca, &sa };
-	//FormatOutput(std::move(analyzers), outputInfo);
-
-
 	mFilter.Filter(mLotteryData);
 
 	AnalyzeResultAll results;
@@ -58,6 +54,8 @@ ErrorType LotteryDataAnalyzer::Analyze(std::string &outputInfo)
 	OddEvenAnalyzer oe;
 	oe.Analyze(mLotteryData, mFilter, results.oddEven);
 
+	
+	FormatOutput({ &bs, &oe }, outputInfo);
 
 	return ErrorType::ET_NoError;
 }
@@ -93,108 +91,10 @@ static void analyze_num(uint32 num,
 	}
 }
 
-//void LotteryDataAnalyzer::AnalyzeContinueData(ContinueAnalyzer &analyer)
-//{
-//	analyer.Analyze(mLotteryData);
-//}
-//
-//void LotteryDataAnalyzer::AnalyzeStepData(StepAnalyzer &analyer)
-//{
-//	analyer.Analyze(mLotteryData);
-//}
+void LotteryDataAnalyzer::FormatOutput(const AnalyzeResultAll &results, std::string &outputInfo)
+{
 
-//#ifdef _DEBUG
-//static void check_valid(const CounterContainerArray &arr, uint32 totallNum)
-//{
-//	const CounterContainer &firstNum = std::get<0>(arr);
-//	const CounterContainer &secondNum = std::get<1>(arr);
-//
-//	uint32 counter = 0;
-//	for (auto n : firstNum)
-//	{
-//		counter += n;
-//	}
-//
-//	for (auto n : secondNum)
-//	{
-//		counter += n;
-//	}
-//
-//	BOOST_ASSERT(counter == totallNum);
-//
-//	
-//
-//	auto maxNum = std::max(firstNum.size(), secondNum.size());
-//	auto minNum = std::min(firstNum.size(), secondNum.size());
-//	auto delta = maxNum - minNum;
-//	BOOST_ASSERT(delta == 0 || delta == 1);
-//}
-//#endif // _DEBUG
-//
-//void LotteryDataAnalyzer::FormatOutput(NumanalyerArray &&analyzers, std::string &outputBuffer)
-//{
-//	std::ostringstream oss;
-//
-//	for (auto analyzer : analyzers)
-//	{
-//		const CounterContainerArray& bigCC = analyzer->GetBigCounterArray();
-//
-//#ifdef _DEBUG
-//		check_valid(bigCC, mLotteryData.size() * 10);
-//#endif // _DEBUG
-//
-//		oss << "Name : " << analyzer->GetName() << "\n";
-//		oss << "Big : ";
-//
-//		auto bigC = std::get<0>(bigCC);
-//		for (auto n : bigC)
-//		{
-//			oss << n << ",";
-//		}
-//
-//		oss << "\n";
-//		oss << "Small : ";
-//
-//		auto smallC = std::get<1>(bigCC);
-//		for (auto n : smallC)
-//		{
-//			oss << n << ",";
-//		}
-//
-//		oss << "\n";
-//			
-//
-//		const CounterContainerArray& oddCC = analyzer->GetOddCounterArray();
-//
-//#ifdef _DEBUG
-//		check_valid(oddCC, mLotteryData.size() * 10);
-//#endif // _DEBUG
-//
-//		oss << "Odd : ";
-//
-//		auto oddC = std::get<0>(oddCC);
-//		for (auto n : oddC)
-//		{
-//			oss << n << ",";
-//		}
-//
-//		oss << "\n";
-//		oss << "Even : ";
-//
-//		auto evenC = std::get<1>(oddCC);
-//
-//		for (auto n : evenC)
-//		{
-//			oss << n << ",";
-//		}
-//
-//		oss << "\n";
-//	}
-//
-//	outputBuffer = oss.str();
-//
-//	OutputDebugStringA(outputBuffer.c_str());
-//}
+}
 
 ErrorType LotteryDataAnalyzer::ReadDataFromFile()
 {
@@ -362,7 +262,7 @@ void IDataAnalyzer::Analyze(const LotteryLineDataArray &lotteryLines, const Colu
 				uint32 index = 0;
 				std::for_each(fullContainer.begin(), itFull, [&index](uint32 num) {index += num; });
 
-				BOOST_ASSERT(index + *itFull < lotteryLines.size());
+				BOOST_ASSERT(index + *itFull <= lotteryLines.size());
 
 				for (uint32 iOrg = 0; iOrg < *itFull; ++iOrg)
 				{
@@ -414,8 +314,9 @@ void IDataAnalyzer::Analyze(const LotteryLineDataArray &lotteryLines, const Colu
 				auto &resultValue = rsm[finalNumCounter];
 
 				resultValue.numCounter = finalNumCounter;
-				resultValue.info.back().type = AnalyzeResult::ResultCounter::Unknown;
+
 				resultValue.info.push_back(AnalyzeResult::ResultCounter::OriginInfo());
+				resultValue.info.back().type = AnalyzeResult::ResultCounter::Unknown;				
 
 				for (auto it : iterContainers)
 				{

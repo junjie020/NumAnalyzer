@@ -15,7 +15,7 @@ NUMANALYZERNATIVE_API int nNumanalyzerNative=0;
 extern "C"
 {
 	// This is an example of an exported function.
-	NUMANALYZERNATIVE_API int fnNumanalyzerNative(const char* path, char* output)
+	NUMANALYZERNATIVE_API int fnNumanalyzerNative(const char* path, char* output, int outputBufferSize)
 	{
 		CNumanalyzerNative::Get().Clear();
 
@@ -24,9 +24,15 @@ extern "C"
 		std::string outputInfo;
 		ErrorType result = CNumanalyzerNative::Get().Run(wPath, outputInfo);
 
-		if (result == ErrorType::ET_NoError)
+		if (result == ErrorType::ET_NoError && !outputInfo.empty())
 		{
-			std::strcpy(output, &*outputInfo.begin());
+			BOOST_ASSERT(outputBufferSize > 0);
+			if (outputInfo.size() > uint32(outputBufferSize))
+			{
+				OutputDebugStringA("output buffer size is not enough to store all the info\n");
+			}
+			
+			::strncpy_s(output, outputBufferSize, &*outputInfo.begin(), outputInfo.size());
 		}
 
 		return int32(result);

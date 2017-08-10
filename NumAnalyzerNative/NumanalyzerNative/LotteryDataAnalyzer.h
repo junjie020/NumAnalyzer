@@ -251,7 +251,7 @@ private:
 	//void AnalyzeContinueData(ContinueAnalyzer &analyer);
 	//void AnalyzeStepData(StepAnalyzer &analyer);
 
-	void FormatOutput(NumanalyerArray &&analyzers, std::string &outputInfo);
+	void FormatOutput(const AnalyzeResultAll &results, std::string &outputInfo);
 
 private:
 	ErrorType ReadDataFromFile();

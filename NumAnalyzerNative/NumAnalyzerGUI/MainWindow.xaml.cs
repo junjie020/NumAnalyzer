@@ -48,7 +48,7 @@ namespace NumAnalyzerGUI
 
 
 		[DllImport("NumanalyzerNative.dll", CallingConvention = CallingConvention.Cdecl)]
-		private static extern int fnNumanalyzerNative(string filePath, StringBuilder output);
+		private static extern int fnNumanalyzerNative(string filePath, StringBuilder output, int outputBufferSize);
 
 		//[DllImport("NumanalyzerNative.dll", CallingConvention = CallingConvention.Cdecl)]
 		//private static extern int Add(int a, int c);
@@ -178,7 +178,7 @@ namespace NumAnalyzerGUI
 			if (FileTextBox.Text.Length != 0)
 			{
 				StringBuilder outputResults = new StringBuilder(1024*1024);
-				fnNumanalyzerNative(FileTextBox.Text, outputResults);
+				fnNumanalyzerNative(FileTextBox.Text, outputResults, outputResults.Length);
 
 				OutputResultContent outputContent = new OutputResultContent();
 
