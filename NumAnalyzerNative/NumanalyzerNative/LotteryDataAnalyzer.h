@@ -32,7 +32,8 @@ struct LotteryLineData
 		uint8 idxInLine;
 	};
 
-	std::vector<LotteryData>	lineData;
+	std::vector<LotteryData>	data;
+	std::vector<uint32>			indices;
 	uint32 lotteryNum;
 	std::string date;
 };
@@ -123,6 +124,8 @@ public:
 
 	using ColumnCounters = std::array<DataCounter, DATA_COLUMN_NUM>;
 	ColumnCounters mCounters;
+
+	ColumnCounters mNumCounters;
 };
 
 using ColumnContainers = std::array<const CounterContainerArray*, DATA_COLUMN_NUM>;
@@ -233,7 +236,15 @@ public:
 class NumberBigSmallAnalyzer : public IDataAnalyzer
 {
 public:
+	NumberBigSmallAnalyzer() : IDataAnalyzer("NumberBigSmallAnalyzer") {}
+	virtual void Analyze(const LotteryLineDataArray &lotteryDataArray, const DataFilter &filter, AnalyzeResult &result) override;
+};
 
+class NumberOddEvenAnalyzer : public IDataAnalyzer
+{
+public:
+	NumberOddEvenAnalyzer() : IDataAnalyzer("NumberOddEvenAnalyzer") {}
+	virtual void Analyze(const LotteryLineDataArray &lotteryDataArray, const DataFilter &filter, AnalyzeResult &result) override;
 };
 
 using NumanalyerArray = std::vector<IDataAnalyzer*>;

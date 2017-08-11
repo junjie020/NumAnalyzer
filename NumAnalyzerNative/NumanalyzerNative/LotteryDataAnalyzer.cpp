@@ -18,35 +18,13 @@ LotteryDataAnalyzer::LotteryDataAnalyzer(const std::wstring &dataPath)
 
 ErrorType LotteryDataAnalyzer::ConstructData()
 {
-	auto result = ReadDataFromFile();
-	if (result == ErrorType::ET_NoError)
-	{
-		for (auto &line : mLotteryData)
-		{
-			for (uint32 ii = 0; ii < line.lineData.size(); ++ii)
-			{
-				BOOST_ASSERT(ii < uint32(std::numeric_limits<uint8>::max()));
-
-				auto &lottery = line.lineData[ii];
-				lottery.idxInLine = uint8(ii);
-				
-			}
-		}
-	}
-	return result;
+	return ReadDataFromFile();
 }
 
 ErrorType LotteryDataAnalyzer::Analyze(std::string &outputInfo)
 {
 	if (mLotteryData.empty())
 		return ErrorType::ET_AnalyzeEmptyData;
-
-	//ContinueAnalyzer ca;
-	//AnalyzeContinueData(ca);
-
-	//StepAnalyzer sa;
-	//AnalyzeStepData(sa);
-
 
 	mFilter.Filter(mLotteryData);
 
@@ -306,9 +284,18 @@ ErrorType LotteryDataAnalyzer::ReadDataFromFile()
 		if (dataParts.size() != 10)
 			return ErrorType::ET_FileFormatErrorWithWrongData;
 
+		lottery.data.resize(dataParts.size());
+		lottery.indices.resize(dataParts.size());
+
 		for (uint32 ii = 0; ii < dataParts.size(); ++ii)
 		{
-			lottery.lineData.push_back(LotteryLineData::LotteryData(std::stoi(dataParts[ii]), ii));
+			uint8 num = uint8(std::stoi(dataParts[ii]));
+
+			lottery.data[ii].num = num;
+			lottery.data[ii].idxInLine = ii;
+
+			BOOST_ASSERT(1 <= num && num <= 10);
+			lottery.indices[num - 1] = ii;
 		}
 	}
 	return ErrorType::ET_NoError;
@@ -331,15 +318,38 @@ void DataFilter::Filter(const LotteryLineDataArray &lotteryDataArray)
 		auto &counter = mCounters[iCol];
 		for (uint32 iRow = 0; iRow < lotteryDataArray.size(); ++iRow)
 		{
-			analyze_num(lotteryDataArray[iRow].lineData[iCol].num, counter.bigNumChecker, counter.oddNumChecker, counter.bigCounterContainer, counter.oddCounterContainer);
+			analyze_num(lotteryDataArray[iRow].data[iCol].num, counter.bigNumChecker, counter.oddNumChecker, counter.bigCounterContainer, counter.oddCounterContainer);
 		}
 
 		auto bigPair = counter.bigNumChecker.GetCounter();
 		store_in_container(bigPair, counter.bigCounterContainer);
 		
 		auto oddPair = counter.oddNumChecker.GetCounter();
-		store_in_container(oddPair, counter.oddCounterContainer);		
+		store_in_container(oddPair, counter.oddCounterContainer);
 	}
+
+	for (uint32 iCol = 0; iCol < DATA_COLUMN_NUM; ++iCol)
+	{
+		auto &counter = mNumCounters[iCol];
+		for (uint32 iRow = 0; iRow < lotteryDataArray.size() - 1; ++iRow)
+		{
+			const auto& line = lotteryDataArray[iRow];
+			const uint32 idx = line.indices[iCol];
+
+			BOOST_ASSERT(line.data[idx].num == (iCol + 1));
+
+			const auto& nextLine = lotteryDataArray[iRow + 1];
+		
+			analyze_num(nextLine.data[idx].num, counter.bigNumChecker, counter.oddNumChecker, counter.bigCounterContainer, counter.oddCounterContainer);
+		}
+
+		auto bigPair = counter.bigNumChecker.GetCounter();
+		store_in_container(bigPair, counter.bigCounterContainer);
+
+		auto oddPair = counter.oddNumChecker.GetCounter();
+		store_in_container(oddPair, counter.oddCounterContainer);
+	}
+	
 }
 
 void IDataAnalyzer::Analyze(const LotteryLineDataArray &lotteryLines, const ColumnContainers &containers, 
@@ -401,7 +411,7 @@ void IDataAnalyzer::Analyze(const LotteryLineDataArray &lotteryLines, const Colu
 
 				for (uint32 iOrg = 0; iOrg < *itFull; ++iOrg)
 				{
-					resultValue.info.back().numbers.push_back(lotteryLines[index + iOrg].lineData[ii].num);
+					resultValue.info.back().numbers.push_back(lotteryLines[index + iOrg].data[ii].num);
 				}
 
 				++itFull;
@@ -487,4 +497,14 @@ void OddEvenAnalyzer::Analyze(const LotteryLineDataArray &lotteryDataArray, cons
 	}
 
 	IDataAnalyzer::Analyze(lotteryDataArray, containers, std::make_tuple(AnalyzeResult::ResultCounter::Odd, AnalyzeResult::ResultCounter::Even), result);
+}
+
+void NumberBigSmallAnalyzer::Analyze(const LotteryLineDataArray &lotteryDataArray, const DataFilter &filter, AnalyzeResult &result)
+{
+
+}
+
+void NumberOddEvenAnalyzer::Analyze(const LotteryLineDataArray &lotteryDataArray, const DataFilter &filter, AnalyzeResult &result)
+{
+
 }
