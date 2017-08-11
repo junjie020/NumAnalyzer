@@ -89,38 +89,104 @@ namespace NumAnalyzerGUI
 			return numbers;
 		}
 
+		static private readonly string LineSeparator_String		= "----------------------------------------";
+		static private readonly string MemberSeparator_String	= " | ";
+		static private readonly string NewLine_String			= "\n";
+
+
+		private string BuildRecordInfo(Linq.JObject recordJObj, string prefixInfo)
+		{
+			string outputResult = prefixInfo;
+
+			Linq.JArray columns = recordJObj["Column"] as Linq.JArray;
+			Debug.Assert(columns != null && columns.Count == 10);			
+
+			System.Collections.Generic.SortedDictionary<int, int> counterTimesMap = new SortedDictionary<int, int>();
+
+			for (int iCol = 0; iCol < columns.Count; ++iCol)
+			{
+				Linq.JArray infoArrayJObj = columns[iCol] as Linq.JArray;
+				Debug.Assert(infoArrayJObj != null);
+
+				for (int iInfo = 0; iInfo < infoArrayJObj.Count; ++iInfo)
+				{
+					Linq.JObject infoJObj = infoArrayJObj[iInfo] as Linq.JObject;
+					Debug.Assert(infoJObj != null);
+					Linq.JArray originInfoJArray = infoJObj["OriginInfo"] as Linq.JArray;
+					Debug.Assert(originInfoJArray != null);
+
+					int counter = (int)infoJObj["Counter"];
+
+					if (!counterTimesMap.ContainsKey(counter))
+					{
+						counterTimesMap.Add(counter, originInfoJArray.Count);
+					}
+					else
+					{
+						counterTimesMap[counter] += originInfoJArray.Count;
+					}
+				}
+			}
+
+			int numberIndex = 0;
+			foreach (var item in counterTimesMap)
+			{
+				outputResult += string.Format("{0}({1})", item.Key, item.Value);
+				outputResult += (numberIndex % 3 == 0) && (numberIndex != 0) ? NewLine_String : MemberSeparator_String;
+				++numberIndex;
+			}
+			outputResult += NewLine_String + LineSeparator_String + NewLine_String;
+
+			return outputResult;
+		}
+
+		private string BuildAnalyzeTypeInfo(Linq.JObject analyzeJObj)
+		{
+			string outputResult = "";
+
+			var continueJObj = analyzeJObj["Continue"] as Linq.JObject;
+			Debug.Assert(continueJObj != null);
+
+			outputResult += BuildRecordInfo(continueJObj, "连续情况：" + NewLine_String);
+
+			var stepJObj = analyzeJObj["Step"] as Linq.JObject;
+			Debug.Assert(stepJObj != null);
+
+			outputResult += BuildRecordInfo(stepJObj, "隔断情况：" + NewLine_String);
+
+			return outputResult;
+		}
 
 		private void PrintInfoToTabs(string jsonString)
 		{
 			Linq.JObject jObj = Linq.JObject.Parse(jsonString);
 
-			string[] analyzeTypeName = { "BigSmall", "OddEven", "NumBigSmall", "NumOddEven" };
-
-			Linq.JObject continueJObj = jObj["BigSmall"]["Continue"] as Linq.JObject;
-			
-			Debug.Assert(continueJObj != null);
-
-			Linq.JArray columns = continueJObj["Column"] as Linq.JArray;
-			Debug.Assert(columns != null && columns.Count == 10);
-
-			string continueTextInfo;
-			
-			for (uint iCol = 0; iCol < columns.Count; ++iCol)
+			if (jObj == null)
 			{
-				Linq.JArray infoArrayJObj = columns[iCol] as Linq.JArray;
-				Debug.Assert(infoArrayJObj != null);
-
-				for (uint iInfo = 0; iInfo < infoArrayJObj.Count; ++iInfo)
-				{
-					Linq.JObject infoJObj = infoArrayJObj[iInfo] as Linq.JObject;
-
-					continueTextInfo = (infoJObj["Counter"]).ToString();
-				}
-			
+				System.Console.WriteLine("parse json result failed!");
+				return;
 			}
+				
+			Linq.JObject bigSmallAnalyzeResultJObj = jObj["BigSmall"] as Linq.JObject;
+			Debug.Assert(bigSmallAnalyzeResultJObj != null);
 
-			
+			BigSmallTabContent.Text = BuildAnalyzeTypeInfo(bigSmallAnalyzeResultJObj);
 
+
+			Linq.JObject oddEvenAnalyzeResultJObj = jObj["OddEven"] as Linq.JObject;
+			Debug.Assert(oddEvenAnalyzeResultJObj != null);
+
+			OddEvenTabContent.Text = BuildAnalyzeTypeInfo(oddEvenAnalyzeResultJObj);
+
+			Linq.JObject numBigSmallAnalyzeResultJObj = jObj["NumBigSmall"] as Linq.JObject;
+			Debug.Assert(numBigSmallAnalyzeResultJObj != null);
+
+			NumBigSmallTabContent.Text = BuildAnalyzeTypeInfo(numBigSmallAnalyzeResultJObj);
+
+			Linq.JObject numOddEvenAnalyzeResultJObj = jObj["NumOddEven"] as Linq.JObject;
+			Debug.Assert(numOddEvenAnalyzeResultJObj != null);
+
+			NumOddEvenTabContent.Text = BuildAnalyzeTypeInfo(numOddEvenAnalyzeResultJObj);
 		}
 	
 
