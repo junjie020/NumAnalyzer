@@ -17,6 +17,10 @@ using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using Microsoft.WindowsAPICodePack.Dialogs;
 
+using Json = Newtonsoft.Json;
+using Linq = Newtonsoft.Json.Linq;
+using Debug = System.Diagnostics.Debug;
+
 namespace NumAnalyzerGUI
 {
 	/// <summary>
@@ -55,29 +59,7 @@ namespace NumAnalyzerGUI
 
 		class OutputResultContent
 		{
-			public struct AnalyzeResult
-			{
-				public string big;
-				public string small;
-				public string odd;
-				public string even; 
-			}
 
-			public enum AnalyzeResultType : int
-			{
-				ART_Continue = 0,
-				ART_Step,
-				ART_NumContinue,
-				ART_NumStep,
-				ART_Count,
-			}
-
-			public AnalyzeResult[] results;
-
-			public OutputResultContent()
-			{
-				results = new AnalyzeResult[(int)(AnalyzeResultType.ART_Count)];
-			}
 		}
 
 		private TabItem GetItemByName(string name)
@@ -107,69 +89,40 @@ namespace NumAnalyzerGUI
 			return numbers;
 		}
 
-		private void FormatString(uint[] first, uint[] second, string firstName, string secondName, ref string formatStr)
+
+		private void PrintInfoToTabs(string jsonString)
 		{
-			uint count = (uint)Math.Min(first.Length, second.Length);
+			Linq.JObject jObj = Linq.JObject.Parse(jsonString);
 
-			for (uint ii = 0; ii < count; ++ii)
+			string[] analyzeTypeName = { "BigSmall", "OddEven", "NumBigSmall", "NumOddEven" };
+
+			Linq.JObject continueJObj = jObj["BigSmall"]["Continue"] as Linq.JObject;
+			
+			Debug.Assert(continueJObj != null);
+
+			Linq.JArray columns = continueJObj["Column"] as Linq.JArray;
+			Debug.Assert(columns != null && columns.Count == 10);
+
+			string continueTextInfo;
+			
+			for (uint iCol = 0; iCol < columns.Count; ++iCol)
 			{
-				for (uint idx0 = 0; idx0 < first[ii]; ++idx0)
+				Linq.JArray infoArrayJObj = columns[iCol] as Linq.JArray;
+				Debug.Assert(infoArrayJObj != null);
+
+				for (uint iInfo = 0; iInfo < infoArrayJObj.Count; ++iInfo)
 				{
-					formatStr += firstName + ", ";
+					Linq.JObject infoJObj = infoArrayJObj[iInfo] as Linq.JObject;
+
+					continueTextInfo = (infoJObj["Counter"]).ToString();
 				}
-
-				formatStr = formatStr.TrimEnd();
-				formatStr = formatStr.Remove(formatStr.Length - 1);
-				formatStr += " | ";
-
-				for (uint idx1 = 0; idx1 < second[ii]; ++idx1)
-				{
-					formatStr += secondName + ", ";
-				}
-
-				formatStr = formatStr.TrimEnd();
-				formatStr = formatStr.Remove(formatStr.Length - 1);
-				formatStr += " | ";
+			
 			}
 
-			if (first.Length > second.Length)
-			{
-				formatStr += firstName;
-			}
-			else if (second.Length > first.Length)
-			{
-				formatStr += secondName;
-			}
-			else
-			{
-				if (0 != formatStr.Length)
-				{
-					formatStr = formatStr.Trim();
-					System.Diagnostics.Debug.Assert(formatStr[formatStr.Length - 1] == '|');
-					formatStr = formatStr.Remove(formatStr.Length - 1);
-					formatStr = formatStr.Trim();
-				}
-			}
+			
 
-			if (0 != formatStr.Length)
-				formatStr += '\n';
 		}
-
-		private string FormatOutput(ref OutputResultContent.AnalyzeResult result)
-		{
-			string formatStr = "";
-			uint[] bigNumbers	= ConvertStringToUIntList(result.big);
-			uint[] smallNumbers = ConvertStringToUIntList(result.small);
-
-			FormatString(bigNumbers, smallNumbers, "大", "小", ref formatStr);
-
-			uint[] oddNumbers	= ConvertStringToUIntList(result.odd);
-			uint[] evenNumbers	= ConvertStringToUIntList(result.even);
-
-			FormatString(oddNumbers, evenNumbers, "单", "双", ref formatStr);
-
-			return formatStr;
-		}
+	
 
 		private void AnalyzeResult(object sender, RoutedEventArgs e)
 		{
@@ -177,112 +130,39 @@ namespace NumAnalyzerGUI
 
 			if (FileTextBox.Text.Length != 0)
 			{
-				StringBuilder outputResults = new StringBuilder(1024*1024);
-				fnNumanalyzerNative(FileTextBox.Text, outputResults, outputResults.Length);
+				const int bufferSize = 1024 * 1024;
+				StringBuilder outputResults = new StringBuilder(bufferSize);
+				fnNumanalyzerNative(FileTextBox.Text, outputResults, bufferSize);
 
-				OutputResultContent outputContent = new OutputResultContent();
+				PrintInfoToTabs(outputResults.ToString());
 
-				ExtractOutputResult(outputResults.ToString(), ref outputContent);
 
-				List<TextBox> tbs = new List<TextBox> { ContinueTabContent, StepTabContent, NumContinueTabContent, NumStepTabContent};
 
-				for (int ii = 0; ii < outputContent.results.Length; ++ii)
-				{
-					tbs[ii].Text = FormatOutput(ref outputContent.results[ii]);
-				}
 			}
-		}
+			//else
+			//{
+			//	// test
+			//	//string json = @"{
+			//	//'CPU': 'Intel',
+			//	//'PSU': '500W',
+			//	//'Drives': [
+			//	//'DVD read/writer'
+			//	///*(broken)*/,
+			//	//'500 gigabyte hard drive',
+			//	//'200 gigabype hard drive'
+			//	//]
+			//	//}";
+			//	////System.IO.File 
 
-		private OutputResultContent.AnalyzeResultType FindResultType(string name)
-		{
-			switch (name)
-			{
-				case "ContinueAnalyzer":
-					return OutputResultContent.AnalyzeResultType.ART_Continue;
-				case "StepAnalyzer":
-					return OutputResultContent.AnalyzeResultType.ART_Step;
-				case "NumContinueAnalyzer":
-					return OutputResultContent.AnalyzeResultType.ART_NumContinue;
-				case "NumStepAnalyzer":
-					return OutputResultContent.AnalyzeResultType.ART_NumStep;
-				default:
-					return OutputResultContent.AnalyzeResultType.ART_Count;
-			}
-		}
+			//	System.IO.StreamReader rw = System.IO.File.OpenText(@"G:\github\NumAnalyzer\NumAnalyzerNative\NumAnalyzerConsoleTest\jsontest.json");
+			//	string fileContent = rw.ReadToEnd();
+			//	Newtonsoft.Json.Linq.JObject jObj = Newtonsoft.Json.Linq.JObject.Parse(fileContent);
 
-		private string[] GetLines(string output)
-		{
-			string[] results = output.Split('\n');
+			//	Newtonsoft.Json.Linq.JArray arr = (Newtonsoft.Json.Linq.JArray)jObj["BigSmall"]["Continue"]["Column"];
 
-			results = results.Where(ss => ss.Length != 0).ToArray();
-			return results;
-		}
-
-		private string ExtractAnalyzerName(string line)
-		{
-			const string namePrefix = "Name : ";
-			int idx = line.IndexOf(namePrefix);
-			if (idx == -1)
-				return "";
-
-			return line.Substring(namePrefix.Length).Trim();
-		}
-
-		private void ExtractOutputResult(string nativeOutputResult, ref OutputResultContent output)
-		{
-			string[] lines = GetLines(nativeOutputResult);
-
-			if (lines.Length == 0)
-				return;
-
-			const int AnalyzerResultStep = 5;
-			System.Diagnostics.Debug.Assert(((lines.Length % AnalyzerResultStep)) == 0);
-
-			int analyzerCount = lines.Length / AnalyzerResultStep;
-
-			if (analyzerCount == 0)
-				return ;
-
-			for (int ii = 0; ii < analyzerCount; ++ii)
-			{
-				int analyzerIdx = ii * AnalyzerResultStep;
-				OutputResultContent.AnalyzeResultType resultType = FindResultType(ExtractAnalyzerName(lines[analyzerIdx]));
-				if (resultType == OutputResultContent.AnalyzeResultType.ART_Count)
-					continue;
-
-				ref OutputResultContent.AnalyzeResult result = ref output.results[(int)resultType];
-
-				for (int contentIdx = 1; contentIdx < AnalyzerResultStep; ++contentIdx)
-				{
-					string line = lines[contentIdx + analyzerIdx];
-					System.Diagnostics.Debug.Assert(line[line.Length - 1] == ',');
 				
-					int lineContentSplitIdx = line.IndexOf(":");
-					string content = line.Substring(lineContentSplitIdx + 1);
-					content = content.Trim();
 
-					if (content[content.Length - 1] == ',')
-					{
-						content = content.Remove(content.Length - 1);
-					}
-
-					string name = line.Substring(0, lineContentSplitIdx);
-					name = name.Trim();
-
-					if (lineContentSplitIdx != -1)
-					{ 
-						switch (name)
-						{
-							case "Big":		result.big		= content;	break;
-							case "Small":	result.small	= content;	break;
-							case "Odd":		result.odd		= content;	break;
-							case "Even":	result.even		= content;	break;
-							default:		System.Diagnostics.Debug.Assert(false);	break;
-						}
-					}					
-				}
-
-			}
+			//}
 		}
 
 		private void BrownFile(object sender, RoutedEventArgs e)

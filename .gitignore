@@ -25,3 +25,5 @@
 /NumAnalyzerNative/NumAnalyzerGUI/obj/Debug
 /NumAnalyzerNative/NumAnalyzerGUI/bin
 *.enc
+/NumAnalyzerNative/NumAnalyzerConsoleTest/jsontest1.json
+/NumAnalyzerNative/NumAnalyzerConsoleTest/jsontest.json
