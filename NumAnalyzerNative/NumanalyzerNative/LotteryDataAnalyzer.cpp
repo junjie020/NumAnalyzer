@@ -8,6 +8,7 @@
 #include "rapidjson/include/rapidjson/document.h"
 #include "rapidjson/include/rapidjson/stringbuffer.h"
 #include "rapidjson/include/rapidjson/writer.h"
+#include "rapidjson/include/rapidjson/prettywriter.h"
 
 LotteryDataAnalyzer::LotteryDataAnalyzer(const std::wstring &dataPath)
 	:mDataPath(dataPath)
@@ -124,43 +125,64 @@ static void format_record(const AnalyzeResult::ColumnRecords &records, rapidjson
 {
 	using namespace rapidjson;
 	Value::MemberIterator recordMem = doc[analyzeName].FindMember(recordTypename);
+	BOOST_ASSERT(recordMem != doc[analyzeName].MemberEnd());
+
+	const char* colName = "Column";
+	BOOST_ASSERT(recordMem->value.FindMember(colName) == recordMem->value.MemberEnd());
+
+	auto &docAllocator = doc.GetAllocator();
+
+	Value colArrayValue;
+	colArrayValue.SetArray();
+
 	for (uint32 ii = 0; ii < records.size(); ++ii)
 	{
-		const std::string colName = get_column_name(ii);
-		BOOST_ASSERT(recordMem->value.FindMember(colName) == recordMem->value.MemberEnd());
+		Value resuletsArrayValue;
+		resuletsArrayValue.SetArray();
 
-		Value colData;
 		const AnalyzeResult::ResultCounterMap &colResults = records[ii];
 		for (const auto &cr : colResults)
 		{
-			auto& numCounterValue = colData.AddMember("NumberCounter", Value(), doc.GetAllocator());
+			Value resultValueObj;
+			resultValueObj.SetObject();
 
-			{
-				Value counterValue;
-				counterValue.SetUint(cr.second.numCounter);
-				numCounterValue.AddMember("Counter", std::move(counterValue), doc.GetAllocator());
-			}
-
-			auto &originInfoValue = numCounterValue.AddMember("OriginInfo", Value(), doc.GetAllocator());
-
+			Value counterValue;
+			counterValue.SetUint(cr.second.numCounter);
+			resultValueObj.AddMember("Counter", counterValue, docAllocator);
+			
+			Value originInfoValue;
+			originInfoValue.SetArray();
+			
 			for (auto &info : cr.second.info)
 			{
+				Value infoValue;
+				infoValue.SetObject();
+
 				Value dataType;
-				dataType.SetString(get_data_type_name(info.type), doc.GetAllocator());
-				originInfoValue.AddMember("DataType", dataType, doc.GetAllocator());
-
-				auto &originNums = originInfoValue.AddMember("OriginNum", Value(), doc.GetAllocator());
-
+				dataType.SetString(get_data_type_name(info.type), docAllocator);
+				infoValue.AddMember("DataType", dataType, docAllocator);
+				
+				Value OriginNumArrayValue;
+				OriginNumArrayValue.SetArray();
+				
 				for (auto &num : info.numbers)
-				{
-					auto &numArrayValue = originNums.SetArray();
-					numArrayValue.PushBack(num, doc.GetAllocator());
+				{	
+					OriginNumArrayValue.PushBack(num, docAllocator);
 				}
+
+				infoValue.AddMember("OriginNum", OriginNumArrayValue, docAllocator);
+
+				originInfoValue.PushBack(infoValue, docAllocator);
 			}
+			resultValueObj.AddMember("OriginInfo", originInfoValue, docAllocator);
+
+			resuletsArrayValue.PushBack(resultValueObj, docAllocator);
 		}
 
-		recordMem->value.AddMember(StringRef(colName), std::move(colData), doc.GetAllocator());
+		colArrayValue.PushBack(resuletsArrayValue, docAllocator);
 	}
+
+	recordMem->value.AddMember(StringRef(colName), colArrayValue, docAllocator);
 
 }
 
@@ -186,6 +208,7 @@ static std::string find_json_template_folder()
 
 static std::string read_json_template_content()
 {
+	//const std::string jsonTemplatePath = "G:/github/NumAnalyzer/NumAnalyzerNative/NumAnalyzerConsoleTest/jsontest1.json";//join_path(find_json_template_folder(), "Resources\\JSONTemplate.json");
 	const std::string jsonTemplatePath = join_path(find_json_template_folder(), "Resources\\JSONTemplate.json");
 
 	std::ifstream iff(jsonTemplatePath.c_str());
@@ -240,6 +263,16 @@ void LotteryDataAnalyzer::FormatOutput(const AnalyzeResultAll &results, std::str
 	rapidjson::Writer<rapidjson::StringBuffer> writer(sb);
 	doc.Accept(writer); 
 	outputInfo = sb.GetString();
+
+	if (false)
+	{
+		rapidjson::StringBuffer tmpSB;
+		rapidjson::PrettyWriter<rapidjson::StringBuffer> pw(tmpSB);
+		doc.Accept(pw);
+
+		std::ofstream off("jsontest.json");
+		off << sb.GetString();
+	}
 }
 
 ErrorType LotteryDataAnalyzer::ReadDataFromFile()
