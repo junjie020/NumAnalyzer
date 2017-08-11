@@ -370,8 +370,8 @@ static CounterContainer&& rebuild_full_container(const CounterContainerArray &co
 		fullContainer.push_back((*container1)[jj]);
 	}
 
-	BOOST_ASSERT(container0->size() + 1 == container1->size());
-	fullContainer.push_back(container0->back());
+	if (container0->size() > container1->size())
+		fullContainer.push_back(container0->back());
 	//@}
 
 	return std::move(fullContainer);
