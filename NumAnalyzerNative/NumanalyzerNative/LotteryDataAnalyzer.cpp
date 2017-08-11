@@ -349,7 +349,32 @@ void DataFilter::Filter(const LotteryLineDataArray &lotteryDataArray)
 		auto oddPair = counter.oddNumChecker.GetCounter();
 		store_in_container(oddPair, counter.oddCounterContainer);
 	}
-	
+}
+
+static CounterContainer&& rebuild_full_container(const CounterContainerArray &containerTuple)
+{
+	auto *container0 = &std::get<0>(containerTuple);
+	auto *container1 = &std::get<1>(containerTuple);
+
+	if (container0->size() < container1->size())
+		std::swap(container0, container1);
+
+
+	//{@	merge in one vector
+	CounterContainer fullContainer;
+	fullContainer.reserve(container0->size() + container1->size());
+
+	for (uint32 jj = 0; jj < container1->size(); ++jj)
+	{
+		fullContainer.push_back((*container0)[jj]);
+		fullContainer.push_back((*container1)[jj]);
+	}
+
+	BOOST_ASSERT(container0->size() + 1 == container1->size());
+	fullContainer.push_back(container0->back());
+	//@}
+
+	return std::move(fullContainer);
 }
 
 void IDataAnalyzer::Analyze(const LotteryLineDataArray &lotteryLines, const ColumnContainers &containers, 
@@ -361,31 +386,7 @@ void IDataAnalyzer::Analyze(const LotteryLineDataArray &lotteryLines, const Colu
 
 	for (uint32 ii = 0; ii < containers.size(); ++ii)
 	{
-		auto &counter = *containers[ii];
-
-		auto &container0 = std::get<0>(counter);
-		auto &container1 = std::get<1>(counter);
-		const uint32 minCount = std::min(container0.size(), container1.size());
-
-		//{@	merge in one vector
-		CounterContainer fullContainer;
-		fullContainer.reserve(container0.size() + container1.size());
-
-		for (uint32 jj = 0; jj < minCount; ++jj)
-		{
-			fullContainer.push_back(container0[jj]);
-			fullContainer.push_back(container1[jj]);
-		}
-
-		if (container0.size() > container1.size())
-		{
-			fullContainer.push_back(container0.back());
-		}
-		else if (container1.size() > container0.size())
-		{
-			fullContainer.push_back(container1.back());
-		}
-		//@}
+		CounterContainer fullContainer = std::move(rebuild_full_container(*containers[ii]));
 
 		CounterContainer::iterator itFull = std::begin(fullContainer);
 		while (itFull != std::end(fullContainer))
