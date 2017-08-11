@@ -33,11 +33,6 @@ namespace NumAnalyzerGUI
 			InitializeComponent();
 		}
 
-		private void MyClick(object obj, RoutedEventArgs e)
-		{			
-			//System.Console.WriteLine("object name :{0}, event string :{1}", obj.ToString(), e.ToString());
-		}
-
 		private void Update_Click(object sender, RoutedEventArgs e)
 		{
 			//System.Console.WriteLine("url text box string : " + Update.Name);
@@ -56,38 +51,6 @@ namespace NumAnalyzerGUI
 
 		//[DllImport("NumanalyzerNative.dll", CallingConvention = CallingConvention.Cdecl)]
 		//private static extern int Add(int a, int c);
-
-		class OutputResultContent
-		{
-
-		}
-
-		private TabItem GetItemByName(string name)
-		{
-			foreach (TabItem tab in TabC.Items)
-			{
-				if (tab.Name == name)
-					return tab;
-			}
-
-			return null;
-		}
-
-		private uint[] ConvertStringToUIntList(string str)
-		{
-			if (str == null)
-				return new uint[0];
-
-			string[] strNumbers = str.Split(',');
-			uint[] numbers = new uint[strNumbers.Length];
-
-			for (int ii = 0; ii < numbers.Length; ++ii)
-			{
-				numbers[ii] = UInt32.Parse(strNumbers[ii]);
-			}
-
-			return numbers;
-		}
 
 		static private readonly string LineSeparator_String		= "----------------------------------------";
 		static private readonly string MemberSeparator_String	= " | ";
@@ -135,8 +98,7 @@ namespace NumAnalyzerGUI
 				outputResult += (numberIndex % 3 == 0) && (numberIndex != 0) ? NewLine_String : MemberSeparator_String;
 				++numberIndex;
 			}
-			outputResult += NewLine_String + LineSeparator_String + NewLine_String;
-
+		
 			return outputResult;
 		}
 
@@ -148,6 +110,8 @@ namespace NumAnalyzerGUI
 			Debug.Assert(continueJObj != null);
 
 			outputResult += BuildRecordInfo(continueJObj, "连续情况：" + NewLine_String);
+
+			outputResult += NewLine_String + LineSeparator_String + NewLine_String;
 
 			var stepJObj = analyzeJObj["Step"] as Linq.JObject;
 			Debug.Assert(stepJObj != null);
@@ -192,8 +156,6 @@ namespace NumAnalyzerGUI
 
 		private void AnalyzeResult(object sender, RoutedEventArgs e)
 		{
-			//System.Console.WriteLine("tab index {0}", TabC.SelectedItem.GetType().ToString());
-
 			if (FileTextBox.Text.Length != 0)
 			{
 				const int bufferSize = 1024 * 1024;
@@ -201,34 +163,7 @@ namespace NumAnalyzerGUI
 				fnNumanalyzerNative(FileTextBox.Text, outputResults, bufferSize);
 
 				PrintInfoToTabs(outputResults.ToString());
-
-
-
 			}
-			//else
-			//{
-			//	// test
-			//	//string json = @"{
-			//	//'CPU': 'Intel',
-			//	//'PSU': '500W',
-			//	//'Drives': [
-			//	//'DVD read/writer'
-			//	///*(broken)*/,
-			//	//'500 gigabyte hard drive',
-			//	//'200 gigabype hard drive'
-			//	//]
-			//	//}";
-			//	////System.IO.File 
-
-			//	System.IO.StreamReader rw = System.IO.File.OpenText(@"G:\github\NumAnalyzer\NumAnalyzerNative\NumAnalyzerConsoleTest\jsontest.json");
-			//	string fileContent = rw.ReadToEnd();
-			//	Newtonsoft.Json.Linq.JObject jObj = Newtonsoft.Json.Linq.JObject.Parse(fileContent);
-
-			//	Newtonsoft.Json.Linq.JArray arr = (Newtonsoft.Json.Linq.JArray)jObj["BigSmall"]["Continue"]["Column"];
-
-				
-
-			//}
 		}
 
 		private void BrownFile(object sender, RoutedEventArgs e)
