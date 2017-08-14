@@ -36,6 +36,12 @@ ErrorType LotteryDataAnalyzer::Analyze(std::string &outputInfo)
 	OddEvenAnalyzer oe;
 	oe.Analyze(mLotteryData, mFilter, results.oddEven);
 
+	NumberBigSmallAnalyzer nbs;
+	nbs.Analyze(mLotteryData, mFilter, results.numBigSmall);
+
+	NumberOddEvenAnalyzer noe;
+	noe.Analyze(mLotteryData, mFilter, results.numOddEven);
+
 	FormatOutput(results, outputInfo);
 
 	return ErrorType::ET_NoError;
@@ -95,7 +101,7 @@ static const char* get_column_name(uint32 iCol)
 	return names[iCol];
 }
 
-static const char* get_data_type_name(AnalyzeResult::ResultCounter::NumType type)
+static const char* get_data_type_name(NumType type)
 {
 	switch (type)
 	{
@@ -405,7 +411,7 @@ static uint32 sum_container(CounterContainer::const_iterator itBeg,  CounterCont
 }
 
 void IDataAnalyzer::Analyze(const LotteryLineDataArray &lotteryLines, const ColumnContainers &containers, 
-	const std::tuple<AnalyzeResult::ResultCounter::NumType, AnalyzeResult::ResultCounter::NumType> &types, 
+	const std::tuple<NumType, NumType> &types, 
 	AnalyzeResult &result)
 {
 	BOOST_ASSERT(!(*containers[0]).cc0.empty() || !(*containers[0]).cc1.empty());
@@ -413,8 +419,8 @@ void IDataAnalyzer::Analyze(const LotteryLineDataArray &lotteryLines, const Colu
 
 	for (uint32 ii = 0; ii < containers.size(); ++ii)
 	{
-		const AnalyzeResult::ResultCounter::NumType firstType = (containers[ii]->orderIdx == 0)  ? std::get<0>(types) : std::get<1>(types);
-		const AnalyzeResult::ResultCounter::NumType secondType = (containers[ii]->orderIdx == 0) ? std::get<1>(types) : std::get<0>(types);
+		const NumType firstType = (containers[ii]->orderIdx == 0)  ? std::get<0>(types) : std::get<1>(types);
+		const NumType secondType = (containers[ii]->orderIdx == 0) ? std::get<1>(types) : std::get<0>(types);
 
 		CounterContainer fullContainer = std::move(rebuild_full_container(*containers[ii]));
 
@@ -426,7 +432,7 @@ void IDataAnalyzer::Analyze(const LotteryLineDataArray &lotteryLines, const Colu
 			const uint32 value = *itFull;
 			if (value != 1)
 			{
-				const AnalyzeResult::ResultCounter::NumType type = (dis % 2 == 0) ? firstType : secondType;
+				const NumType type = (dis % 2 == 0) ? firstType : secondType;
 				AnalyzeResult::ResultCounterMap &rsm = result.continueRecords[ii];
 
 				auto &resultValue = rsm[value];
@@ -435,14 +441,7 @@ void IDataAnalyzer::Analyze(const LotteryLineDataArray &lotteryLines, const Colu
 				resultValue.info.back().type = type;
 				resultValue.numCounter = value;
 
-				const uint32 index = sum_container(fullContainer.begin(), itFull);
-
-				BOOST_ASSERT(index + *itFull <= lotteryLines.size());
-
-				for (uint32 iOrg = 0; iOrg < *itFull; ++iOrg)
-				{
-					resultValue.info.back().numbers.push_back(lotteryLines[index + iOrg].data[ii].num);
-				}
+				BuildOriginContinueNumbers(lotteryLines, ii, fullContainer, itFull);
 
 				++itFull;
 			}
@@ -454,40 +453,9 @@ void IDataAnalyzer::Analyze(const LotteryLineDataArray &lotteryLines, const Colu
 
 				uint32 numCounter = uint32(std::distance(itFull, itFound));
 
-				std::vector<std::vector<uint32>::const_iterator>	iterContainers;
-
 				uint32 extraNum = 0;
+				auto numbers = std::move(BuildOriginStepNumbers(lotteryLines, ii, fullContainer, itFull, itFound, extraNum));
 
-				std::vector<uint32>	originNumbers;
-				if (itFull != std::begin(fullContainer))
-				{
-					++extraNum;
-
-					const uint32 previousSumNum = sum_container(std::begin(fullContainer), itFull);
-					BOOST_ASSERT(*(itFull - 1) > 1);
-
-					BOOST_ASSERT(previousSumNum < lotteryLines.size());
-
-					originNumbers.push_back(lotteryLines[previousSumNum - 1].data[ii].num);
-				}
-
-				for (auto it = itFull; it != itFound; ++it)
-				{
-					const uint32 previousSumNum = sum_container(std::begin(fullContainer), it);
-
-					BOOST_ASSERT(*it == 1);
-					originNumbers.push_back(lotteryLines[previousSumNum].data[ii].num);
-				}
-
-				if (itFound != std::end(fullContainer))
-				{
-					++extraNum;
-					const uint32 previousSumNum = sum_container(std::begin(fullContainer), itFound);
-
-					BOOST_ASSERT(*itFound > 1);
-					originNumbers.push_back(lotteryLines[previousSumNum].data[ii].num);
-				}
-				
 				// the calculate method is : the number of 1 in the array
 				// and the begin and end count, but the step is need two number to generate, so we need to minus 1.
 				// ex : 9, 8, 6, 1, 7, 1, 2 ==> 3, 1, 1, 2 ==> 3,1 has one step, 1, 1 has one step, 1, 2 has one step, 4 number(6, 1, 7, 1) but 3 steps.
@@ -499,7 +467,7 @@ void IDataAnalyzer::Analyze(const LotteryLineDataArray &lotteryLines, const Colu
 				resultValue.info.push_back(AnalyzeResult::ResultCounter::OriginInfo());
 				resultValue.info.back().type = AnalyzeResult::ResultCounter::Unknown;				
 
-				resultValue.info.back().numbers = std::move(originNumbers);
+				resultValue.info.back().numbers = std::move(numbers);
 
 				itFull = itFound;
 			}
@@ -508,41 +476,168 @@ void IDataAnalyzer::Analyze(const LotteryLineDataArray &lotteryLines, const Colu
 	}
 }
 
-void IDataAnalyzer::RecordContinueData()
+std::vector<uint32> SimpleDataAnalyzer::BuildOriginContinueNumbers(const LotteryLineDataArray &lotteryLines, uint32 colIdx, const CounterContainer& container, CounterContainer::const_iterator itData)
 {
+	const uint32 index = sum_container(container.begin(), itData);
 
+	BOOST_ASSERT(index + *itData <= lotteryLines.size());
+
+	std::vector<uint32>	numbers;
+
+	for (uint32 iOrg = 0; iOrg < *itData; ++iOrg)
+	{
+		numbers.push_back(lotteryLines[index + iOrg].data[colIdx].num);
+	}
+
+	return std::move(numbers);
+}
+
+std::vector<uint32> SimpleDataAnalyzer::BuildOriginStepNumbers(const LotteryLineDataArray &lotteryLines, uint32 colIdx, const CounterContainer& container, 
+	CounterContainer::const_iterator itBeg, CounterContainer::const_iterator itEnd, uint32 &extraNum)
+{
+	extraNum = 0;
+
+	std::vector<uint32>	numbers;
+	if (itBeg != std::begin(container))
+	{
+		++extraNum;
+
+		const uint32 previousSumNum = sum_container(std::begin(container), itBeg);
+		BOOST_ASSERT(*(itBeg - 1) > 1);
+
+		BOOST_ASSERT(previousSumNum < lotteryLines.size());
+
+		numbers.push_back(lotteryLines[previousSumNum - 1].data[colIdx].num);
+	}
+
+	for (auto it = itBeg; it != itEnd; ++it)
+	{
+		const uint32 previousSumNum = sum_container(std::begin(container), it);
+
+		BOOST_ASSERT(*it == 1);
+		numbers.push_back(lotteryLines[previousSumNum].data[colIdx].num);
+	}
+
+	if (itEnd != std::end(container))
+	{
+		++extraNum;
+		const uint32 previousSumNum = sum_container(std::begin(container), itEnd);
+
+		BOOST_ASSERT(*itEnd > 1);
+		numbers.push_back(lotteryLines[previousSumNum].data[colIdx].num);
+	}
+
+	return std::move(numbers);
+}
+
+
+std::vector<uint32> NumDataAnalyzer::BuildOriginContinueNumbers(const LotteryLineDataArray &lotteryLines, uint32 colIdx, const CounterContainer& container, CounterContainer::const_iterator itData)
+{
+	const uint32 index = sum_container(container.begin(), itData);
+
+	BOOST_ASSERT(index + *itData <= (lotteryLines.size() - 1));
+
+	std::vector<uint32>	numbers;
+
+	for (uint32 iOrg = 0; iOrg < *itData; ++iOrg)
+	{
+		// +1, because the data is begin from line 2. see DataFilter::Filter function 
+		auto& line = lotteryLines[index + iOrg + 1];
+		
+		numbers.push_back(line.data[line.indices[colIdx]].num);
+	}
+
+	return std::move(numbers);
+}
+
+std::vector<uint32> NumDataAnalyzer::BuildOriginStepNumbers(const LotteryLineDataArray &lotteryLines, uint32 colIdx, const CounterContainer& container, CounterContainer::const_iterator itBeg, CounterContainer::const_iterator itEnd, uint32 &extraNum)
+{
+	extraNum = 0;
+
+	std::vector<uint32>	numbers;
+	if (itBeg != std::begin(container))
+	{
+		++extraNum;
+
+		const uint32 previousSumNum = sum_container(std::begin(container), itBeg);
+		BOOST_ASSERT(*(itBeg - 1) > 1);
+
+		BOOST_ASSERT((previousSumNum + 1) < lotteryLines.size());
+
+		auto &line = lotteryLines[previousSumNum];
+
+		numbers.push_back(line.data[line.indices[colIdx]].num);
+	}
+
+	for (auto it = itBeg; it != itEnd; ++it)
+	{
+		const uint32 previousSumNum = sum_container(std::begin(container), it);
+
+		BOOST_ASSERT(*it == 1);
+
+		auto &line = lotteryLines[previousSumNum + 1];
+
+		BOOST_ASSERT((previousSumNum + 1 + 1) < lotteryLines.size());
+
+		numbers.push_back(line.data[line.indices[colIdx]].num);		
+	}
+
+	if (itEnd != std::end(container))
+	{
+		++extraNum;
+		const uint32 previousSumNum = sum_container(std::begin(container), itEnd);
+
+		BOOST_ASSERT(*itEnd > 1);
+
+		BOOST_ASSERT((previousSumNum + 1 + 1) < lotteryLines.size());
+		auto &line = lotteryLines[previousSumNum + 1];
+
+		numbers.push_back(line.data[line.indices[colIdx]].num);
+	}
+
+	return std::move(numbers);
+}
+
+static ColumnContainers create_bigsmall_column_containers(const DataFilter::ColumnCounters &columnCounters)
+{
+	ColumnContainers containers;
+
+	for (uint32 ii = 0; ii < containers.size(); ++ii)
+	{
+		containers[ii] = &(columnCounters[ii].bigCounterContainer);
+	}
+
+	return std::move(containers);
 }
 
 void BigSmallAnalyzer::Analyze(const LotteryLineDataArray &lotteryDataArray, const DataFilter &filter, AnalyzeResult &result)
 {
+	IDataAnalyzer::Analyze(lotteryDataArray, create_bigsmall_column_containers(filter.mCounters), std::make_tuple(AnalyzeResult::ResultCounter::Big, AnalyzeResult::ResultCounter::Small), result);
+}
+
+static ColumnContainers create_oddeven_column_containers(const DataFilter::ColumnCounters &columnCounters)
+{
 	ColumnContainers containers;
 
 	for (uint32 ii = 0; ii < containers.size(); ++ii)
 	{
-		containers[ii] = &(filter.mCounters[ii].bigCounterContainer);
+		containers[ii] = &(columnCounters[ii].oddCounterContainer);
 	}
 
-	IDataAnalyzer::Analyze(lotteryDataArray, containers, std::make_tuple(AnalyzeResult::ResultCounter::Big, AnalyzeResult::ResultCounter::Small), result);
+	return std::move(containers);
 }
 
 void OddEvenAnalyzer::Analyze(const LotteryLineDataArray &lotteryDataArray, const DataFilter &filter, AnalyzeResult &result)
 {
-	ColumnContainers containers;
-
-	for (uint32 ii = 0; ii < containers.size(); ++ii)
-	{
-		containers[ii] = &(filter.mCounters[ii].oddCounterContainer);
-	}
-
-	IDataAnalyzer::Analyze(lotteryDataArray, containers, std::make_tuple(AnalyzeResult::ResultCounter::Odd, AnalyzeResult::ResultCounter::Even), result);
+	IDataAnalyzer::Analyze(lotteryDataArray, create_oddeven_column_containers(filter.mCounters), std::make_tuple(AnalyzeResult::ResultCounter::Odd, AnalyzeResult::ResultCounter::Even), result);
 }
 
 void NumberBigSmallAnalyzer::Analyze(const LotteryLineDataArray &lotteryDataArray, const DataFilter &filter, AnalyzeResult &result)
 {
-
+	IDataAnalyzer::Analyze(lotteryDataArray, create_bigsmall_column_containers(filter.mNumCounters), std::make_tuple(AnalyzeResult::ResultCounter::Big, AnalyzeResult::ResultCounter::Small), result);
 }
 
 void NumberOddEvenAnalyzer::Analyze(const LotteryLineDataArray &lotteryDataArray, const DataFilter &filter, AnalyzeResult &result)
 {
-
+	IDataAnalyzer::Analyze(lotteryDataArray, create_oddeven_column_containers(filter.mNumCounters), std::make_tuple(AnalyzeResult::ResultCounter::Odd, AnalyzeResult::ResultCounter::Even), result);
 }

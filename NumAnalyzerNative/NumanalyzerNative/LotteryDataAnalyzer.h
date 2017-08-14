@@ -174,6 +174,8 @@ struct AnalyzeResult
 	ColumnRecords	stepRecords;
 };
 
+using NumType = AnalyzeResult::ResultCounter::NumType;
+
 struct AnalyzeResultAll
 {
 	AnalyzeResult bigSmall;
@@ -190,14 +192,13 @@ public:
 
 	virtual void Analyze(const LotteryLineDataArray &lotteryDataArray, const DataFilter &filter, AnalyzeResult &result) = 0;
 
-
 protected:
-	void Analyze(const LotteryLineDataArray &, const ColumnContainers &containers, 
+	virtual	std::vector<uint32> BuildOriginContinueNumbers(const LotteryLineDataArray &lotteryLines, uint32 colIdx, const CounterContainer& container, CounterContainer::const_iterator itData) = 0;
+	virtual std::vector<uint32> BuildOriginStepNumbers(const LotteryLineDataArray &lotteryLines, uint32 colIdx, const CounterContainer& container, CounterContainer::const_iterator itBeg, CounterContainer::const_iterator itEnd, uint32 &extraNum) = 0;
+protected:
+	void Analyze(const LotteryLineDataArray &lotteryLines, const ColumnContainers &containers,
 		const std::tuple<AnalyzeResult::ResultCounter::NumType, AnalyzeResult::ResultCounter::NumType> &types, 
 		AnalyzeResult &result);
-
-private:
-	void RecordContinueData();
 
 public:
 	std::string GetName() const {
@@ -227,31 +228,55 @@ protected:
 //};
 
 
-class BigSmallAnalyzer : public IDataAnalyzer
+class SimpleDataAnalyzer : public IDataAnalyzer
 {
 public:
-	BigSmallAnalyzer() : IDataAnalyzer("BigSmallAnalyzer"){}
+	SimpleDataAnalyzer(const std::string &name) : IDataAnalyzer(name) {}
+protected:
+	
+	virtual	std::vector<uint32> BuildOriginContinueNumbers(const LotteryLineDataArray &lotteryLines, uint32 colIdx, const CounterContainer& container, CounterContainer::const_iterator itData) override;
+	
+	
+	virtual std::vector<uint32> BuildOriginStepNumbers(const LotteryLineDataArray &lotteryLines, uint32 colIdx, const CounterContainer& container, CounterContainer::const_iterator itBeg, CounterContainer::const_iterator itEnd, uint32 &extraNum) override;
+};
+
+class BigSmallAnalyzer : public SimpleDataAnalyzer
+{
+public:
+	BigSmallAnalyzer() : SimpleDataAnalyzer("BigSmallAnalyzer"){}
 	virtual void Analyze(const LotteryLineDataArray &lotteryDataArray, const DataFilter &filter, AnalyzeResult &result) override;
 };
 
-class OddEvenAnalyzer : public IDataAnalyzer
+class OddEvenAnalyzer : public SimpleDataAnalyzer
 {
 public:
-	OddEvenAnalyzer() : IDataAnalyzer("OddEvenAnalyzer") {}
+	OddEvenAnalyzer() : SimpleDataAnalyzer("OddEvenAnalyzer") {}
 	virtual void Analyze(const LotteryLineDataArray &lotteryDataArray, const DataFilter &filter, AnalyzeResult &result) override;
 };
 
-class NumberBigSmallAnalyzer : public IDataAnalyzer
+class NumDataAnalyzer : public IDataAnalyzer
 {
 public:
-	NumberBigSmallAnalyzer() : IDataAnalyzer("NumberBigSmallAnalyzer") {}
+	NumDataAnalyzer(const std::string &name) : IDataAnalyzer(name){}
+
+protected:
+	virtual std::vector<uint32> BuildOriginContinueNumbers(const LotteryLineDataArray &lotteryLines, uint32 colIdx, const CounterContainer& container, CounterContainer::const_iterator itData) override;
+	virtual std::vector<uint32> BuildOriginStepNumbers(const LotteryLineDataArray &lotteryLines, uint32 colIdx, const CounterContainer& container, CounterContainer::const_iterator itBeg, CounterContainer::const_iterator itEnd, uint32 &extraNum) override;
+
+};
+
+
+class NumberBigSmallAnalyzer : public NumDataAnalyzer
+{
+public:
+	NumberBigSmallAnalyzer() : NumDataAnalyzer("NumberBigSmallAnalyzer") {}
 	virtual void Analyze(const LotteryLineDataArray &lotteryDataArray, const DataFilter &filter, AnalyzeResult &result) override;
 };
 
-class NumberOddEvenAnalyzer : public IDataAnalyzer
+class NumberOddEvenAnalyzer : public NumDataAnalyzer
 {
 public:
-	NumberOddEvenAnalyzer() : IDataAnalyzer("NumberOddEvenAnalyzer") {}
+	NumberOddEvenAnalyzer() : NumDataAnalyzer("NumberOddEvenAnalyzer") {}
 	virtual void Analyze(const LotteryLineDataArray &lotteryDataArray, const DataFilter &filter, AnalyzeResult &result) override;
 };
 
