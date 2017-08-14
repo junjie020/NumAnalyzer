@@ -441,7 +441,7 @@ void IDataAnalyzer::Analyze(const LotteryLineDataArray &lotteryLines, const Colu
 				resultValue.info.back().type = type;
 				resultValue.numCounter = value;
 
-				BuildOriginContinueNumbers(lotteryLines, ii, fullContainer, itFull);
+				resultValue.info.back().numbers = BuildOriginContinueNumbers(lotteryLines, ii, fullContainer, itFull);
 
 				++itFull;
 			}
@@ -577,7 +577,7 @@ std::vector<uint32> NumDataAnalyzer::BuildOriginStepNumbers(const LotteryLineDat
 
 		auto &line = lotteryLines[previousSumNum + 1];
 
-		BOOST_ASSERT((previousSumNum + 1 + 1) < lotteryLines.size());
+		BOOST_ASSERT((previousSumNum + 1 + 1) <= lotteryLines.size());
 
 		numbers.push_back(line.data[line.indices[colIdx]].num);		
 	}
@@ -589,7 +589,7 @@ std::vector<uint32> NumDataAnalyzer::BuildOriginStepNumbers(const LotteryLineDat
 
 		BOOST_ASSERT(*itEnd > 1);
 
-		BOOST_ASSERT((previousSumNum + 1 + 1) < lotteryLines.size());
+		BOOST_ASSERT((previousSumNum + 1 + 1) <= lotteryLines.size());
 		auto &line = lotteryLines[previousSumNum + 1];
 
 		numbers.push_back(line.data[line.indices[colIdx]].num);
