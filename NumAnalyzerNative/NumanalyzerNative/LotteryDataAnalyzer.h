@@ -196,6 +196,9 @@ protected:
 		const std::tuple<AnalyzeResult::ResultCounter::NumType, AnalyzeResult::ResultCounter::NumType> &types, 
 		AnalyzeResult &result);
 
+private:
+	void RecordContinueData();
+
 public:
 	std::string GetName() const {
 		return mName;

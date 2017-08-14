@@ -396,6 +396,14 @@ static CounterContainer rebuild_full_container(const CounterContainerPair &pair)
 	return std::move(fullContainer);
 }
 
+static uint32 sum_container(CounterContainer::const_iterator itBeg,  CounterContainer::const_iterator itEnd)
+{
+	uint32 index = 0;
+	std::for_each(itBeg, itEnd, [&index](uint32 num) {index += num; });
+
+	return index;
+}
+
 void IDataAnalyzer::Analyze(const LotteryLineDataArray &lotteryLines, const ColumnContainers &containers, 
 	const std::tuple<AnalyzeResult::ResultCounter::NumType, AnalyzeResult::ResultCounter::NumType> &types, 
 	AnalyzeResult &result)
@@ -406,7 +414,7 @@ void IDataAnalyzer::Analyze(const LotteryLineDataArray &lotteryLines, const Colu
 	for (uint32 ii = 0; ii < containers.size(); ++ii)
 	{
 		const AnalyzeResult::ResultCounter::NumType firstType = (containers[ii]->orderIdx == 0)  ? std::get<0>(types) : std::get<1>(types);
-		const AnalyzeResult::ResultCounter::NumType secondType = (containers[ii]->orderIdx == 0) ? std::get<0>(types) : std::get<1>(types);
+		const AnalyzeResult::ResultCounter::NumType secondType = (containers[ii]->orderIdx == 0) ? std::get<1>(types) : std::get<0>(types);
 
 		CounterContainer fullContainer = std::move(rebuild_full_container(*containers[ii]));
 
@@ -427,8 +435,7 @@ void IDataAnalyzer::Analyze(const LotteryLineDataArray &lotteryLines, const Colu
 				resultValue.info.back().type = type;
 				resultValue.numCounter = value;
 
-				uint32 index = 0;
-				std::for_each(fullContainer.begin(), itFull, [&index](uint32 num) {index += num; });
+				const uint32 index = sum_container(fullContainer.begin(), itFull);
 
 				BOOST_ASSERT(index + *itFull <= lotteryLines.size());
 
@@ -451,30 +458,36 @@ void IDataAnalyzer::Analyze(const LotteryLineDataArray &lotteryLines, const Colu
 
 				uint32 extraNum = 0;
 
+				std::vector<uint32>	originNumbers;
 				if (itFull != std::begin(fullContainer))
 				{
 					++extraNum;
 
-					auto itTemp = itFull;
-					--itTemp;
-					iterContainers.push_back(itTemp);
+					const uint32 previousSumNum = sum_container(std::begin(fullContainer), itFull);
+					BOOST_ASSERT(*(itFull - 1) > 1);
 
-					BOOST_ASSERT(*itTemp > 1);
+					BOOST_ASSERT(previousSumNum < lotteryLines.size());
+
+					originNumbers.push_back(lotteryLines[previousSumNum - 1].data[ii].num);
+				}
+
+				for (auto it = itFull; it != itFound; ++it)
+				{
+					const uint32 previousSumNum = sum_container(std::begin(fullContainer), it);
+
+					BOOST_ASSERT(*it == 1);
+					originNumbers.push_back(lotteryLines[previousSumNum].data[ii].num);
 				}
 
 				if (itFound != std::end(fullContainer))
 				{
 					++extraNum;
-					iterContainers.push_back(itFound);
+					const uint32 previousSumNum = sum_container(std::begin(fullContainer), itFound);
 
 					BOOST_ASSERT(*itFound > 1);
+					originNumbers.push_back(lotteryLines[previousSumNum].data[ii].num);
 				}
-	
-				for (auto it = itFull; it != itFound; ++it)
-				{
-					iterContainers.push_back(it);
-				}
-			
+				
 				// the calculate method is : the number of 1 in the array
 				// and the begin and end count, but the step is need two number to generate, so we need to minus 1.
 				// ex : 9, 8, 6, 1, 7, 1, 2 ==> 3, 1, 1, 2 ==> 3,1 has one step, 1, 1 has one step, 1, 2 has one step, 4 number(6, 1, 7, 1) but 3 steps.
@@ -486,16 +499,18 @@ void IDataAnalyzer::Analyze(const LotteryLineDataArray &lotteryLines, const Colu
 				resultValue.info.push_back(AnalyzeResult::ResultCounter::OriginInfo());
 				resultValue.info.back().type = AnalyzeResult::ResultCounter::Unknown;				
 
-				for (auto it : iterContainers)
-				{
-					resultValue.info.back().numbers.push_back(*it);
-				}
+				resultValue.info.back().numbers = std::move(originNumbers);
 
 				itFull = itFound;
 			}
 		}
 
 	}
+}
+
+void IDataAnalyzer::RecordContinueData()
+{
+
 }
 
 void BigSmallAnalyzer::Analyze(const LotteryLineDataArray &lotteryDataArray, const DataFilter &filter, AnalyzeResult &result)
