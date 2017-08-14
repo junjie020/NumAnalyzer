@@ -41,23 +41,37 @@ ErrorType LotteryDataAnalyzer::Analyze(std::string &outputInfo)
 	return ErrorType::ET_NoError;
 }
 
-static void store_in_container(const ReciprocalCounterPair &pair, CounterContainerArray &container)
+static void store_in_container(const ReciprocalCounterPair &pair, CounterContainerPair &container)
 {
 	auto first = std::get<0>(pair);
 	auto second = std::get<1>(pair);
 
+	const bool isNotInit = container.cc0.empty() && container.cc1.empty();
+	
 	if (first != 0)
-		std::get<0>(container).push_back(first);
+	{
+		if (isNotInit)
+			container.orderIdx = 0;
+
+		container.cc0.push_back(first);
+	}
+		
 
 	if (second != 0)
-		std::get<1>(container).push_back(second);
+	{
+		if (isNotInit)
+			container.orderIdx = 1;
+
+		container.cc1.push_back(second);
+	}
+		
 }
 
 static void analyze_num(uint32 num, 
 	ReciprocalCounter<BigSmallNumChecker> &bigNumChecker, 
 	ReciprocalCounter<OddNumChecker> &oddNumChecker, 
-	CounterContainerArray &bigCounterContainer, 
-	CounterContainerArray &oddCounterContainer)
+	CounterContainerPair &bigCounterContainer, 
+	CounterContainerPair &oddCounterContainer)
 {
 	ReciprocalCounterPair pairBig;
 	if (bigNumChecker.Calc(num, pairBig))
@@ -351,27 +365,32 @@ void DataFilter::Filter(const LotteryLineDataArray &lotteryDataArray)
 	}
 }
 
-static CounterContainer&& rebuild_full_container(const CounterContainerArray &containerTuple)
+static CounterContainer rebuild_full_container(const CounterContainerPair &pair)
 {
-	auto *container0 = &std::get<0>(containerTuple);
-	auto *container1 = &std::get<1>(containerTuple);
-
-	if (container0->size() < container1->size())
-		std::swap(container0, container1);
-
-
 	//{@	merge in one vector
 	CounterContainer fullContainer;
-	fullContainer.reserve(container0->size() + container1->size());
+	fullContainer.reserve(pair.cc0.size() + pair.cc1.size());
 
-	for (uint32 jj = 0; jj < container1->size(); ++jj)
+	const CounterContainer *first = &pair.cc0;
+	const CounterContainer *second = &pair.cc1;
+	if (pair.orderIdx != 0)
+		std::swap(first, second);
+
+
+	BOOST_ASSERT(std::abs(int32(first->size() - second->size())) <= 1);
+
+	const uint32 minSize = std::min(first->size(), second->size());
+
+	for (uint32 jj = 0; jj < minSize; ++jj)
 	{
-		fullContainer.push_back((*container0)[jj]);
-		fullContainer.push_back((*container1)[jj]);
+		fullContainer.push_back((*first)[jj]);
+		fullContainer.push_back((*second)[jj]);
 	}
 
-	if (container0->size() > container1->size())
-		fullContainer.push_back(container0->back());
+	if (first->size() > second->size())
+		fullContainer.push_back(first->back());
+	else if (second->size() > first->size())
+		fullContainer.push_back(second->back());
 	//@}
 
 	return std::move(fullContainer);
@@ -381,11 +400,14 @@ void IDataAnalyzer::Analyze(const LotteryLineDataArray &lotteryLines, const Colu
 	const std::tuple<AnalyzeResult::ResultCounter::NumType, AnalyzeResult::ResultCounter::NumType> &types, 
 	AnalyzeResult &result)
 {
-	BOOST_ASSERT(!std::get<0>(*containers[0]).empty() || !std::get<1>(*containers[0]).empty());
+	BOOST_ASSERT(!(*containers[0]).cc0.empty() || !(*containers[0]).cc1.empty());
 	BOOST_ASSERT(containers.size() == result.continueRecords.size() && result.continueRecords.size() == result.stepRecords.size());
 
 	for (uint32 ii = 0; ii < containers.size(); ++ii)
 	{
+		const AnalyzeResult::ResultCounter::NumType firstType = (containers[ii]->orderIdx == 0)  ? std::get<0>(types) : std::get<1>(types);
+		const AnalyzeResult::ResultCounter::NumType secondType = (containers[ii]->orderIdx == 0) ? std::get<0>(types) : std::get<1>(types);
+
 		CounterContainer fullContainer = std::move(rebuild_full_container(*containers[ii]));
 
 		CounterContainer::iterator itFull = std::begin(fullContainer);
@@ -396,7 +418,7 @@ void IDataAnalyzer::Analyze(const LotteryLineDataArray &lotteryLines, const Colu
 			const uint32 value = *itFull;
 			if (value != 1)
 			{
-				const AnalyzeResult::ResultCounter::NumType type = (dis % 2 == 0) ? std::get<0>(types) : std::get<1>(types);
+				const AnalyzeResult::ResultCounter::NumType type = (dis % 2 == 0) ? firstType : secondType;
 				AnalyzeResult::ResultCounterMap &rsm = result.continueRecords[ii];
 
 				auto &resultValue = rsm[value];

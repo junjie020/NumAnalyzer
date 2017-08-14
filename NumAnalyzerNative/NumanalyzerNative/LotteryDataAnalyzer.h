@@ -8,7 +8,12 @@ extern bool IsBigNum(uint32 num);
 
 using CounterContainer = std::vector<uint32>;
 
-using CounterContainerArray = std::tuple<CounterContainer, CounterContainer>;
+
+struct CounterContainerPair
+{
+	CounterContainer cc0, cc1;
+	uint8 orderIdx;
+};
 
 using ReciprocalCounterPair = std::tuple<uint32, uint32>;
 
@@ -118,8 +123,8 @@ public:
 		ReciprocalCounter<BigSmallNumChecker>	bigNumChecker;
 		ReciprocalCounter<OddNumChecker>	oddNumChecker;
 
-		CounterContainerArray				bigCounterContainer;
-		CounterContainerArray				oddCounterContainer;
+		CounterContainerPair				bigCounterContainer;
+		CounterContainerPair				oddCounterContainer;
 	};
 
 	using ColumnCounters = std::array<DataCounter, DATA_COLUMN_NUM>;
@@ -128,7 +133,7 @@ public:
 	ColumnCounters mNumCounters;
 };
 
-using ColumnContainers = std::array<const CounterContainerArray*, DATA_COLUMN_NUM>;
+using ColumnContainers = std::array<const CounterContainerPair*, DATA_COLUMN_NUM>;
 
 struct AnalyzeResult
 {
