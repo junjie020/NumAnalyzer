@@ -53,4 +53,7 @@ extern NUMANALYZERNATIVE_API int nNumanalyzerNative;
 extern "C"
 NUMANALYZERNATIVE_API int fnNumanalyzerNative(const char* path, char *output, int outputBufferSize);
 
+extern "C"
+NUMANALYZERNATIVE_API bool InitNative();
+
 //extern "C" NUMANALYZERNATIVE_API int Add(int, int);

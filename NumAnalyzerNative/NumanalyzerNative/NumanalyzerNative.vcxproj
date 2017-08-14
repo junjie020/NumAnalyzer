@@ -152,6 +152,7 @@
   <ItemGroup>
     <ClInclude Include="DataType.h" />
     <ClInclude Include="ErrorType.h" />
+    <ClInclude Include="LogSystem.h" />
     <ClInclude Include="LotteryDataAnalyzer.h" />
     <ClInclude Include="NumanalyzerNative.h" />
     <ClInclude Include="RemoveWindowDefMacro.h" />
@@ -174,6 +175,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="LogSystem.cpp" />
     <ClCompile Include="LotteryDataAnalyzer.cpp" />
     <ClCompile Include="NumanalyzerNative.cpp" />
     <ClCompile Include="stdafx.cpp">

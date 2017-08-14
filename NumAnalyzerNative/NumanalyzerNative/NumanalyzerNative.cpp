@@ -5,6 +5,7 @@
 #include "NumanalyzerNative.h"
 
 #include "LotteryDataAnalyzer.h"
+#include "LogSystem.h"
 
 #include "StringUtils.h"
 
@@ -14,6 +15,12 @@ NUMANALYZERNATIVE_API int nNumanalyzerNative=0;
 
 extern "C"
 {
+	NUMANALYZERNATIVE_API bool InitNative()
+	{
+		LogSystem::Init(L"Log.log");
+		return true;
+	}
+
 	// This is an example of an exported function.
 	NUMANALYZERNATIVE_API int fnNumanalyzerNative(const char* path, char* output, int outputBufferSize)
 	{
@@ -29,10 +36,16 @@ extern "C"
 			BOOST_ASSERT(outputBufferSize > 0);
 			if (outputInfo.size() > uint32(outputBufferSize))
 			{
-				OutputDebugStringA("output buffer size is not enough to store all the info\n");
+				LogSystem::Get()->Log("output buffer size is not enough to store all the info\n");
 			}
 			
 			::strncpy_s(output, outputBufferSize, &*outputInfo.begin(), outputInfo.size());
+		}
+		else
+		{
+			std::wostringstream woss;
+			woss << L"error code : " << std::endl;
+			LogSystem::Get()->Log(woss.str());
 		}
 
 		return int32(result);
