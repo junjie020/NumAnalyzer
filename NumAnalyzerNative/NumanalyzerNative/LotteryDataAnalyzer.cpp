@@ -2,7 +2,6 @@
 
 #include "LotteryDataAnalyzer.h"
 #include "StringUtils.h"
-
 #include "boost/algorithm/string.hpp"
 
 #include "rapidjson/include/rapidjson/document.h"
@@ -280,43 +279,64 @@ ErrorType LotteryDataAnalyzer::ReadDataFromFile()
 	if (!iff)
 		return ErrorType::ET_FilePathIsNotValid;
 
+	std::string regMatchString;
+
+	for (uint32 ii = 0; ii < 9; ++ii)
+		regMatchString += "\\d+\\s*,";
+
+	regMatchString += "\\d+";
+
+	std::regex regDataNum(regMatchString.c_str(), std::regex_constants::icase);
+
 	std::string line;
 	while (std::getline(iff, line))
 	{
-		trim(line);
-		const char tab = '\t';
+		//trim(line);
+		//const char tab = '\t';
 
-		std::vector<std::string> parts;
-		boost::split(parts, line, boost::is_any_of("\t"));
+		//std::vector<std::string> parts;
+		//boost::split(parts, line, boost::is_any_of("\t"));
 
-		if (parts.size() != 3)
-			return ErrorType::ET_FileFormatError;
+		//if (parts.size() != 3)
+		//	return ErrorType::ET_FileFormatError;
 
-		mLotteryData.push_back(LotteryLineData());
-		LotteryLineData &lottery = mLotteryData.back();
-		lottery.lotteryNum = std::stoi(parts[0]);
+		//mLotteryData.push_back(LotteryLineData());
+		//LotteryLineData &lottery = mLotteryData.back();
+		//lottery.lotteryNum = std::stoi(parts[0]);
 
-		lottery.date = parts[2];
+		//lottery.date = parts[2];
 
-		std::vector<std::string> dataParts;
-		boost::split(dataParts, parts[1], boost::is_any_of(","));
+		//std::vector<std::string> dataParts;
+		//boost::split(dataParts, parts[1], boost::is_any_of(","));
 
-		if (dataParts.size() != 10)
-			return ErrorType::ET_FileFormatErrorWithWrongData;
-
-		lottery.data.resize(dataParts.size());
-		lottery.indices.resize(dataParts.size());
-
-		for (uint32 ii = 0; ii < dataParts.size(); ++ii)
+		std::smatch matchResult;
+		if (std::regex_search(line, matchResult, regDataNum))
 		{
-			uint8 num = uint8(std::stoi(dataParts[ii]));
+			std::string strData = *matchResult.begin();
 
-			lottery.data[ii].num = num;
-			lottery.data[ii].idxInLine = ii;
+			std::vector<std::string> dataParts;
+			boost::split(dataParts, strData, boost::is_any_of(","));
+			if (dataParts.size() != 10)
+				return ErrorType::ET_FileFormatErrorWithWrongData;
 
-			BOOST_ASSERT(1 <= num && num <= 10);
-			lottery.indices[num - 1] = ii;
+			mLotteryData.push_back(LotteryLineData());
+			LotteryLineData &lottery = mLotteryData.back();
+			lottery.data.resize(dataParts.size());
+			lottery.indices.resize(dataParts.size());
+
+			for (uint32 ii = 0; ii < dataParts.size(); ++ii)
+			{
+				uint8 num = uint8(std::stoi(dataParts[ii]));
+
+				lottery.data[ii].num = num;
+				lottery.data[ii].idxInLine = ii;
+
+				BOOST_ASSERT(1 <= num && num <= 10);
+				lottery.indices[num - 1] = ii;
+			}
 		}
+
+
 	}
 	return ErrorType::ET_NoError;
 }
