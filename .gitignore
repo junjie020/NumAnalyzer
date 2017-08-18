@@ -27,3 +27,11 @@
 *.enc
 /NumAnalyzerNative/NumAnalyzerConsoleTest/jsontest1.json
 /NumAnalyzerNative/NumAnalyzerConsoleTest/jsontest.json
+/NumAnalyzerNative/NumanalyzerNative/Release/*.pch
+/NumAnalyzerNative/Debug/NumAnalyzerGUI.application
+/NumAnalyzerNative/Debug/NumAnalyzerGUI.exe.manifest
+/NumAnalyzerNative/Debug/NumAnalyzerGUI.vshost.exe
+/NumAnalyzerNative/Debug/NumAnalyzerGUI.vshost.exe.config
+/NumAnalyzerNative/Debug/NumAnalyzerGUI.vshost.exe.manifest
+/NumAnalyzerNative/NumanalyzerNative.sdf
+/NumAnalyzerNative/Release/app.publish/NumAnalyzerGUI.exe
