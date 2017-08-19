@@ -288,7 +288,7 @@ class LotteryDataAnalyzer
 public:
 	LotteryDataAnalyzer(const std::wstring &dataPath);
 
-	ErrorType ConstructData();
+	ErrorType ConstructData(bool isURL);
 
 	ErrorType Analyze(std::string &outputInfo);
 private:
@@ -299,6 +299,7 @@ private:
 
 private:
 	ErrorType ReadDataFromFile();
+	ErrorType ReadDataFromURL();
 
 private:
 	std::wstring	mDataPath;

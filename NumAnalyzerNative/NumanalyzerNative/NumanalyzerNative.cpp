@@ -9,27 +9,34 @@
 
 #include "StringUtils.h"
 
-
-// This is an example of an exported variable
-NUMANALYZERNATIVE_API int nNumanalyzerNative=0;
+#include "curl/include/curl/curl.h"
 
 extern "C"
 {
-	NUMANALYZERNATIVE_API bool InitNative()
+	NUMANALYZERNATIVE_API int InitNative()
 	{
 		LogSystem::Init(L"Log.log");
-		return true;
+
+		CURLcode code = curl_global_init(CURL_GLOBAL_ALL);
+		if (CURLE_OK == code)
+			return 0;
+
+		{
+			std::ostringstream oss;
+			oss << "Init cURL failed, url code : " << int32(code) << std::endl;
+			LogSystem::Get()->Log(oss.str());
+		}		
+		return 1;
 	}
 
-	// This is an example of an exported function.
-	NUMANALYZERNATIVE_API int fnNumanalyzerNative(const char* path, char* output, int outputBufferSize)
+	int NumAnalyzeNative(const char* path, char* output, int outputBufferSize, bool isURL)
 	{
 		CNumanalyzerNative::Get().Clear();
 
 		const std::wstring wPath = is_empty_c_str(path) ? L"" : utf8_to_utf16(std::string(path));
 
 		std::string outputInfo;
-		ErrorType result = CNumanalyzerNative::Get().Run(wPath, outputInfo);
+		ErrorType result = CNumanalyzerNative::Get().Run(wPath, outputInfo, isURL);
 
 		if (result == ErrorType::ET_NoError && !outputInfo.empty())
 		{
@@ -38,7 +45,7 @@ extern "C"
 			{
 				LogSystem::Get()->Log("output buffer size is not enough to store all the info\n");
 			}
-			
+
 			::strncpy_s(output, outputBufferSize, &*outputInfo.begin(), outputInfo.size());
 		}
 		else
@@ -49,6 +56,17 @@ extern "C"
 		}
 
 		return int32(result);
+	}
+
+	// This is an example of an exported function.
+	NUMANALYZERNATIVE_API int NumanalyzerNativeFromPath(const char* path, char* output, int outputBufferSize)
+	{
+		return NumAnalyzeNative(path, output, outputBufferSize, false);
+	}
+
+	NUMANALYZERNATIVE_API int NumanalyzerNativeFromURL(const char* url, char *output, int outputBufferSize)
+	{
+		return NumAnalyzeNative(url, output, outputBufferSize, true);
 	}
 }
 
@@ -69,19 +87,20 @@ CNumanalyzerNative::~CNumanalyzerNative()
 	ReleaseLotteryAnalyzer();
 }
 
-ErrorType CNumanalyzerNative::Run(const std::wstring &path, std::string &outputInfo)
+ErrorType CNumanalyzerNative::Run(const std::wstring &path, std::string &outputInfo, bool isURL)
 {
 	ReleaseLotteryAnalyzer();
 
 	mLotteryAnalyzer = new LotteryDataAnalyzer(path);
 
-	auto result = mLotteryAnalyzer->ConstructData();
+	auto result = mLotteryAnalyzer->ConstructData(isURL);
 	if (ErrorType::ET_NoError != result)
 		return result;
 
 	
 	return mLotteryAnalyzer->Analyze(outputInfo);
 }
+
 
 void CNumanalyzerNative::Clear()
 {

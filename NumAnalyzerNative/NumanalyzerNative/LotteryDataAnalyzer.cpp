@@ -9,14 +9,19 @@
 #include "rapidjson/include/rapidjson/writer.h"
 #include "rapidjson/include/rapidjson/prettywriter.h"
 
+#include "curl/include/curl/curl.h"
+
 LotteryDataAnalyzer::LotteryDataAnalyzer(const std::wstring &dataPath)
 	:mDataPath(dataPath)
 {
 
 }
 
-ErrorType LotteryDataAnalyzer::ConstructData()
+ErrorType LotteryDataAnalyzer::ConstructData(bool isURL)
 {
+	if (isURL)
+		return ReadDataFromURL();
+
 	return ReadDataFromFile();
 }
 
@@ -344,6 +349,12 @@ ErrorType LotteryDataAnalyzer::ReadDataFromFile()
 
 
 	}
+	return ErrorType::ET_NoError;
+}
+
+ErrorType LotteryDataAnalyzer::ReadDataFromURL()
+{
+	curl_easy_init();
 	return ErrorType::ET_NoError;
 }
 
