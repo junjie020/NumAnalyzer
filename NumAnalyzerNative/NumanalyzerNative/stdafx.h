@@ -35,6 +35,8 @@
 
 #include <filesystem>
 
+#include <memory>
+
 namespace fs = std::experimental::filesystem;
 
 //#include <date>
