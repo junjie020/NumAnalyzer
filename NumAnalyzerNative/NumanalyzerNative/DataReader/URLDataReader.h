@@ -10,6 +10,12 @@ public:
 
 	virtual ErrorType ConstructData(LotteryLineDataArray &lotterys) override;
 
+	std::string& GetContent() {
+		return mURLContent;
+	}
+
 private:
 	std::wstring mURL;
+
+	std::string mURLContent;
 };
