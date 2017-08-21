@@ -88,7 +88,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;WIN32;RAPIDJSON_HAS_STDSTRING;_DEBUG;_WINDOWS;_USRDLL;NUMANALYZERNATIVE_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(BOOST_DIR);..\ThirdParty\Include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;$(BOOST_DIR);..\ThirdParty\Include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -118,7 +118,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;WIN32;RAPIDJSON_HAS_STDSTRING;NDEBUG;_WINDOWS;_USRDLL;NUMANALYZERNATIVE_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(BOOST_DIR);..\ThirdParty\Include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;$(BOOST_DIR);..\ThirdParty\Include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -150,10 +150,16 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Analyzer\DataAnalyzer.h" />
+    <ClInclude Include="Analyzer\DataFilter.h" />
+    <ClInclude Include="DataReader\DataReader.h" />
+    <ClInclude Include="DataReader\FileDataReader.h" />
+    <ClInclude Include="DataReader\URLDataReader.h" />
     <ClInclude Include="DataType.h" />
     <ClInclude Include="ErrorType.h" />
     <ClInclude Include="LogSystem.h" />
     <ClInclude Include="LotteryDataAnalyzer.h" />
+    <ClInclude Include="LotteryDataType.h" />
     <ClInclude Include="NumanalyzerNative.h" />
     <ClInclude Include="RemoveWindowDefMacro.h" />
     <ClInclude Include="stdafx.h" />
@@ -161,6 +167,11 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Analyzer\DataAnalyzer.cpp" />
+    <ClCompile Include="Analyzer\DataFilter.cpp" />
+    <ClCompile Include="DataReader\DataReader.cpp" />
+    <ClCompile Include="DataReader\FileDataReader.cpp" />
+    <ClCompile Include="DataReader\URLDataReader.cpp" />
     <ClCompile Include="dllmain.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

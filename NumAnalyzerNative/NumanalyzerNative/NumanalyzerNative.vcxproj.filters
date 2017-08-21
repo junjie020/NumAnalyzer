@@ -13,6 +13,18 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\DataReader">
+      <UniqueIdentifier>{658aded5-a736-4a70-a10d-bf9bd74e6066}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\DataReader">
+      <UniqueIdentifier>{c8a56edd-2f63-46a9-bbf4-618f376a73ee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Analyzer">
+      <UniqueIdentifier>{299eea61-dd76-4d6d-b35f-ebca7c8e0830}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Analyzer">
+      <UniqueIdentifier>{23699008-1293-4159-a871-84ea2bc60555}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -45,6 +57,24 @@
     <ClInclude Include="LogSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="LotteryDataType.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DataReader\FileDataReader.h">
+      <Filter>Header Files\DataReader</Filter>
+    </ClInclude>
+    <ClInclude Include="DataReader\URLDataReader.h">
+      <Filter>Header Files\DataReader</Filter>
+    </ClInclude>
+    <ClInclude Include="DataReader\DataReader.h">
+      <Filter>Header Files\DataReader</Filter>
+    </ClInclude>
+    <ClInclude Include="Analyzer\DataAnalyzer.h">
+      <Filter>Header Files\Analyzer</Filter>
+    </ClInclude>
+    <ClInclude Include="Analyzer\DataFilter.h">
+      <Filter>Header Files\Analyzer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -64,6 +94,21 @@
     </ClCompile>
     <ClCompile Include="LogSystem.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DataReader\URLDataReader.cpp">
+      <Filter>Source Files\DataReader</Filter>
+    </ClCompile>
+    <ClCompile Include="DataReader\DataReader.cpp">
+      <Filter>Source Files\DataReader</Filter>
+    </ClCompile>
+    <ClCompile Include="DataReader\FileDataReader.cpp">
+      <Filter>Source Files\DataReader</Filter>
+    </ClCompile>
+    <ClCompile Include="Analyzer\DataAnalyzer.cpp">
+      <Filter>Source Files\Analyzer</Filter>
+    </ClCompile>
+    <ClCompile Include="Analyzer\DataFilter.cpp">
+      <Filter>Source Files\Analyzer</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

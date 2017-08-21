@@ -35,7 +35,7 @@ public:
 	~CNumanalyzerNative();
 	
 	// TODO: add your methods here.
-	ErrorType Run(const std::wstring &path, std::string &outputInfo);
+	ErrorType Run(const std::wstring &path, std::string &outputInfo, bool isURL);
 
 	void Clear();
 
@@ -51,9 +51,12 @@ private:
 extern NUMANALYZERNATIVE_API int nNumanalyzerNative;
 
 extern "C"
-NUMANALYZERNATIVE_API int fnNumanalyzerNative(const char* path, char *output, int outputBufferSize);
+NUMANALYZERNATIVE_API int NumanalyzerNativeFromPath(const char* path, char *output, int outputBufferSize);
 
 extern "C"
-NUMANALYZERNATIVE_API bool InitNative();
+NUMANALYZERNATIVE_API int NumanalyzerNativeFromURL(const char* url, char *output, int outputBufferSize);
+
+extern "C"
+NUMANALYZERNATIVE_API int InitNative();
 
 //extern "C" NUMANALYZERNATIVE_API int Add(int, int);

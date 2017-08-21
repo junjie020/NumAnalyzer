@@ -29,19 +29,27 @@ namespace NumAnalyzerGUI
 	public partial class MainWindow : Window
 	{
 		[DllImport("NumanalyzerNative.dll", CallingConvention = CallingConvention.Cdecl)]
-		private static extern int fnNumanalyzerNative(string filePath, StringBuilder output, int outputBufferSize);
+		private static extern int NumanalyzerNativeFromPath(string filePath, StringBuilder output, int outputBufferSize);
 
 		[DllImport("NumanalyzerNative.dll", CallingConvention = CallingConvention.Cdecl)]
-		private static extern bool InitNative();
+		private static extern int NumanalyzerNativeFromURL(string URL, StringBuilder output, int outputBufferSize);
+
+		[DllImport("NumanalyzerNative.dll", CallingConvention = CallingConvention.Cdecl)]
+		private static extern int InitNative();
+
+		private bool needDisableURL = false;
 		public MainWindow()
 		{
-			InitNative();
+			int result = InitNative();
+			if (result == 1)
+				needDisableURL = true;
+
 			InitializeComponent();
 		}
 
 		private void Update_Click(object sender, RoutedEventArgs e)
 		{
-			//System.Console.WriteLine("url text box string : " + Update.Name);
+			AnalyzeResult(URLTextBox.Text, true);
 		}
 
 		//[StructLayout(LayoutKind.Sequential)]
@@ -157,17 +165,25 @@ namespace NumAnalyzerGUI
 
 			NumOddEvenTabContent.Text = BuildAnalyzeTypeInfo(numOddEvenAnalyzeResultJObj);
 		}
+
+		private void AnalyzeResult(string content, bool URL)
+		{
+			const int bufferSize = 1024 * 1024;
+			StringBuilder outputResults = new StringBuilder(bufferSize);
+			if (URL)
+				NumanalyzerNativeFromURL(content, outputResults, bufferSize);
+			else
+				NumanalyzerNativeFromPath(content, outputResults, bufferSize);
+
+			PrintInfoToTabs(outputResults.ToString());
+		}
 	
 
 		private void AnalyzeResult(object sender, RoutedEventArgs e)
 		{
 			if (FileTextBox.Text.Length != 0)
 			{
-				const int bufferSize = 1024 * 1024;
-				StringBuilder outputResults = new StringBuilder(bufferSize);
-				fnNumanalyzerNative(FileTextBox.Text, outputResults, bufferSize);
-
-				PrintInfoToTabs(outputResults.ToString());
+				AnalyzeResult(FileTextBox.Text, false);
 			}
 		}
 

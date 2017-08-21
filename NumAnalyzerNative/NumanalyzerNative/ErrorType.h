@@ -9,4 +9,6 @@ enum class ErrorType : uint32
 	ET_FileFormatErrorWithWrongData,
 
 	ET_AnalyzeEmptyData,
+
+	ET_URLPreformError,
 };
