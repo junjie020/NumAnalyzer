@@ -43,7 +43,10 @@ static size_t write_data(void *ptr, size_t size, size_t nmemb, void *stream)
 
 	const size_t realsize = size * nmemb;
 
-	content.append((const char*)ptr, ((const char*)ptr) + realsize);
+	std::string bufferUTF8;
+	bufferUTF8.append((const char*)ptr, ((const char*)ptr) + realsize);
+
+	content += utf8_to_utf16(bufferUTF8);
 
 	return realsize;
 }
@@ -98,7 +101,7 @@ ErrorType URLDataReader::ConstructData(LotteryLineDataArray &lotterys)
 
 	const std::string url = utf16_to_utf8(mURL);
 
-	const bool isHttps = url.find_first_of("https") != std::string::npos;
+	const bool isHttps = url.find("https") != std::string::npos;
 
 	auto result = curl_easy_setopt(handle, CURLOPT_URL, url.c_str());
 	result = curl_easy_setopt(handle, CURLOPT_TIMEOUT, 100L);

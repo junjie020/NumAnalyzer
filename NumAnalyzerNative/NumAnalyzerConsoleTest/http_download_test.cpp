@@ -173,7 +173,7 @@ static void setup(CURL *hnd, int num)
 
 	/* we use a self-signed test server, skip verification during debugging */
 	curl_easy_setopt(hnd, CURLOPT_SSL_VERIFYPEER, 0L);
-	curl_easy_setopt(hnd, CURLOPT_SSL_VERIFYHOST, 0L);
+	//curl_easy_setopt(hnd, CURLOPT_SSL_VERIFYHOST, 0L);
 
 #if (CURLPIPE_MULTIPLEX > 0)
 	/* wait for pipe connection to confirm */
