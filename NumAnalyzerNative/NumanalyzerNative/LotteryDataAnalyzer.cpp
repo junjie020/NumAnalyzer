@@ -2,6 +2,7 @@
 
 #include "LotteryDataAnalyzer.h"
 #include "StringUtils.h"
+#include "LogSystem.h"
 
 #include "rapidjson/include/rapidjson/document.h"
 #include "rapidjson/include/rapidjson/stringbuffer.h"
@@ -185,19 +186,8 @@ static std::string read_json_template_content()
 	return std::string();
 }
 
-void LotteryDataAnalyzer::FormatOutput(const AnalyzeResultAll &results, std::string &outputInfo)
+static void output_analyze_results(const AnalyzeResultAll &results, rapidjson::Document &doc)
 {
-	const std::string jsonTemplateContent = read_json_template_content();
-	
-	rapidjson::Document doc;
-	if (doc.Parse(jsonTemplateContent).HasParseError())
-	{
-		std::ostringstream oss;
-		oss << "Json template has error, error code is : " << uint32(doc.GetParseError()) << std::endl;
-		OutputDebugStringA(oss.str().c_str());
-		return;
-	}
-
 	struct AnalyzeResutPack
 	{
 		const AnalyzeResult *result;
@@ -215,10 +205,54 @@ void LotteryDataAnalyzer::FormatOutput(const AnalyzeResultAll &results, std::str
 	{
 		format_result(*pack.result, doc, pack.name);
 	}
+}
+
+static void output_origin_numbers(LotteryLineDataArray &lotterys, rapidjson::Document &doc)
+{
+	//{@	save origin data info
+	const char* originNumName = "OriginNumbers";
+	BOOST_ASSERT(doc.FindMember(originNumName) == doc.MemberEnd());
+
+	rapidjson::Value originNumValue;
+	originNumValue.SetArray();
+
+	for (auto &line : lotterys)
+	{
+		rapidjson::Value lineValue;
+		lineValue.SetArray();
+
+		for (auto &data : line.data)
+		{
+			lineValue.PushBack(data.num, doc.GetAllocator());
+
+		}
+
+		originNumValue.PushBack(lineValue, doc.GetAllocator());
+	}
+
+	doc.AddMember(rapidjson::StringRef(originNumName), originNumValue, doc.GetAllocator());
+	//@}
+}
+
+void LotteryDataAnalyzer::FormatOutput(const AnalyzeResultAll &results, std::string &outputInfo)
+{
+	const std::string jsonTemplateContent = read_json_template_content();
+	
+	rapidjson::Document doc;
+	if (doc.Parse(jsonTemplateContent).HasParseError())
+	{
+		std::ostringstream oss;
+		oss << "Json template has error, error code is : " << uint32(doc.GetParseError()) << std::endl;
+		LogSystem::Get()->Log(oss.str());
+		return;
+	}
+
+	output_analyze_results(results, doc);
+	output_origin_numbers(mLotteryData, doc);
 
 	rapidjson::StringBuffer sb;
 	rapidjson::Writer<rapidjson::StringBuffer> writer(sb);
-	doc.Accept(writer); 
+	doc.Accept(writer);
 	outputInfo = sb.GetString();
 
 	if (false)
@@ -230,31 +264,6 @@ void LotteryDataAnalyzer::FormatOutput(const AnalyzeResultAll &results, std::str
 		std::ofstream off("jsontest.json");
 		off << sb.GetString();
 	}
-
-	//{@	save origin data info
-	//for (auto &line : mLotteryData)
-	//{
-	//	for (auto &data : line.data)
-	//	{
-	//		const char* colName = "OriginNumbers";
-	//		BOOST_ASSERT(doc.FindMember(colName) == doc.MemberEnd());
-
-	//		rapidjson::Value originNumValue;
-	//		originNumValue.SetArray();
-
-	//		rapidjson::Value
-
-
-	//		doc.AddMember(colName, originNumValue, doc.);
-	//	}
-	//}
-	//@}
-}
-
-ErrorType LotteryDataAnalyzer::ReadDataFromURL()
-{
-	curl_easy_init();
-	return ErrorType::ET_NoError;
 }
 
 bool IsOddNum(uint32 num)

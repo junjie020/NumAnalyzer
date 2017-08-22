@@ -9,7 +9,7 @@
     <Grid Margin="0,0,-8,0" >
         <TextBox x:Name="FileTextBox" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top" Width="511" Margin="71,10,0,0" IsEnabled="False"/>
         <Button x:Name="Brown" Content="浏览" Margin="598,9,29,0" VerticalAlignment="Top" Height="24" Click="BrownFile" IsEnabled="False"/>
-        <TextBox x:Name="URLTextBox" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top" Width="511" Margin="71,38,0,0"/>
+        <TextBox x:Name="URLTextBox" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top" Width="511" Margin="71,38,0,0" Text="http://www.bwlc.net/bulletin/prevtrax.html"/>
         <Button x:Name="Analyze" Content="分析" HorizontalAlignment="Left" Margin="581,0,0,10" VerticalAlignment="Bottom" Width="75" Click="AnalyzeResult" Height="24"/>
         <TabControl x:Name="TabC" HorizontalAlignment="Left" Height="349" Margin="9,77,0,0" VerticalAlignment="Top" Width="679" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
             <TabItem x:Name="ContinueTab" Header="大小" HorizontalAlignment="Left" VerticalAlignment="Top">
@@ -30,6 +30,12 @@
             <TabItem x:Name="NumStepTab" Header="数字-单双" HorizontalAlignment="Left" Height="19" VerticalAlignment="Top">
                 <ScrollViewer>
                     <TextBox x:Name="NumOddEvenTabContent" Margin="10" TextWrapping="Wrap" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" />
+                </ScrollViewer>
+            </TabItem>
+
+            <TabItem x:Name="OriginNumbersTab" Header="原始读取数据" HorizontalAlignment="Left" Height="19" VerticalAlignment="Top">
+                <ScrollViewer>
+                    <TextBox x:Name="OriginNumbersTabContent" Margin="10" TextWrapping="Wrap" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" />
                 </ScrollViewer>
             </TabItem>
         </TabControl>

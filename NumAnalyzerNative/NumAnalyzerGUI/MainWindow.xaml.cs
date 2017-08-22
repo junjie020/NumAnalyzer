@@ -125,6 +125,7 @@ namespace NumAnalyzerGUI
 
 		private string BuildAnalyzeTypeInfo(Linq.JObject analyzeJObj)
 		{
+			Debug.Assert(analyzeJObj != null);
 			string outputResult = "";
 
 			var continueJObj = analyzeJObj["Continue"] as Linq.JObject;
@@ -142,6 +143,35 @@ namespace NumAnalyzerGUI
 			return outputResult;
 		}
 
+		private string BuildOriginNumbersContent(Linq.JArray originNumbersObj)
+		{
+			Debug.Assert(originNumbersObj != null);
+			string content = "";
+			for (int iRow = 0; iRow < originNumbersObj.Count; ++iRow)
+			{
+				Linq.JArray lineArray = originNumbersObj[iRow] as Linq.JArray;
+				Debug.Assert(lineArray != null);
+
+				Debug.Assert(lineArray.Count == 10);
+
+				string lineContent = "[";
+				for (int iCol = 0; iCol < lineArray.Count; ++iCol)
+				{
+					lineContent += lineArray[iCol].ToString();
+
+					if (iCol != lineArray.Count - 1)
+					{
+						lineContent += ", ";
+					}					
+				}
+
+				lineContent += "]\n";
+				content += lineContent;
+			}
+
+			return content;
+		}
+
 		private void PrintInfoToTabs(string jsonString)
 		{
 			if (jsonString == "")
@@ -155,26 +185,25 @@ namespace NumAnalyzerGUI
 				return;
 			}
 				
-			Linq.JObject bigSmallAnalyzeResultJObj = jObj["BigSmall"] as Linq.JObject;
-			Debug.Assert(bigSmallAnalyzeResultJObj != null);
-
+			Linq.JObject bigSmallAnalyzeResultJObj = jObj["BigSmall"] as Linq.JObject;								
 			BigSmallTabContent.Text = BuildAnalyzeTypeInfo(bigSmallAnalyzeResultJObj);
 
 
 			Linq.JObject oddEvenAnalyzeResultJObj = jObj["OddEven"] as Linq.JObject;
-			Debug.Assert(oddEvenAnalyzeResultJObj != null);
-
 			OddEvenTabContent.Text = BuildAnalyzeTypeInfo(oddEvenAnalyzeResultJObj);
 
 			Linq.JObject numBigSmallAnalyzeResultJObj = jObj["NumBigSmall"] as Linq.JObject;
-			Debug.Assert(numBigSmallAnalyzeResultJObj != null);
-
 			NumBigSmallTabContent.Text = BuildAnalyzeTypeInfo(numBigSmallAnalyzeResultJObj);
 
 			Linq.JObject numOddEvenAnalyzeResultJObj = jObj["NumOddEven"] as Linq.JObject;
-			Debug.Assert(numOddEvenAnalyzeResultJObj != null);
-
 			NumOddEvenTabContent.Text = BuildAnalyzeTypeInfo(numOddEvenAnalyzeResultJObj);
+
+			Linq.JArray originNumbersObj = jObj["OriginNumbers"] as Linq.JArray;
+			OriginNumbersTabContent.Text = BuildOriginNumbersContent(originNumbersObj);
+
+
+
+
 		}
 
 		private void AnalyzeResult(string content, bool isURL)
