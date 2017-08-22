@@ -48,11 +48,16 @@ namespace NumAnalyzerGUI
 				needDisableURL = true;
 
 			InitializeComponent();
-		}
 
-		private void Update_Click(object sender, RoutedEventArgs e)
-		{
-			AnalyzeResult(URLTextBox.Text, true);
+			if(needDisableURL)
+			{
+				URLCheck.IsEnabled = false;
+
+				FileTextBox.IsEnabled = true;
+				Brown.IsEnabled = true;
+
+				System.Windows.MessageBox.Show("确认网路是否有连接，网址模式不可用", "警告", MessageBoxButton.OK);
+			}
 		}
 
 		//[StructLayout(LayoutKind.Sequential)]
@@ -139,6 +144,9 @@ namespace NumAnalyzerGUI
 
 		private void PrintInfoToTabs(string jsonString)
 		{
+			if (jsonString == "")
+				return;
+
 			Linq.JObject jObj = Linq.JObject.Parse(jsonString);
 
 			if (jObj == null)
@@ -182,9 +190,15 @@ namespace NumAnalyzerGUI
 
 		private void AnalyzeResult(object sender, RoutedEventArgs e)
 		{
-			if (FileTextBox.Text.Length != 0)
+			bool isURL = (bool)URLCheck.IsChecked;
+			string content = isURL ? URLTextBox.Text : FileTextBox.Text;
+			if (content.Length != 0)
 			{
-				AnalyzeResult(FileTextBox.Text, false);
+				AnalyzeResult(content, isURL);
+			}
+			else
+			{
+				System.Windows.MessageBox.Show("输入数据为空","警告", MessageBoxButton.OK);
 			}
 		}
 
