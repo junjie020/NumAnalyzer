@@ -197,5 +197,14 @@ namespace NumAnalyzerGUI
 				FileTextBox.Text = dlg.FileName;
 			}
 		}
+
+		private void UsingURLAsInput(object sender, RoutedEventArgs e)
+		{
+			bool isCheck = (bool)URLCheck.IsChecked;
+			FileTextBox.IsEnabled = !isCheck;
+			Brown.IsEnabled = !isCheck;
+
+			URLTextBox.IsEnabled = isCheck;
+		}
 	}
 }
