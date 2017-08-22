@@ -18,6 +18,10 @@ void test_analyzer()
 
 int main(int argc, char* argv[])
 {
+	//std::wstring ss(L"<table> abc </table> <table>abc abc</table>");
+
+	//auto pos = ss.find(L"</table>");
+
 	test_analyzer();
 	return 0;
 }

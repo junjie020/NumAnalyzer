@@ -9,6 +9,42 @@ FileDataReader::FileDataReader(const std::wstring &path)
 
 }
 
+std::wregex build_num_reg_obj()
+{
+	std::wstring regMatchString(L"\t?");
+
+	for (uint32 ii = 0; ii < 9; ++ii)
+		regMatchString += L"\\d+\\s*,?";
+
+	regMatchString += L"\\d+";
+
+	return std::wregex(regMatchString.c_str(), std::regex_constants::icase);
+}
+
+ErrorType convert_string_data_num_to_lottery(const std::wstring &dataNum, LotteryLineData &lottery)
+{
+	std::vector<std::string> dataParts;
+	boost::split(dataParts, dataNum, boost::is_any_of(", "));
+	if (dataParts.size() != 10)
+		return ErrorType::ET_FileFormatErrorWithWrongData;
+
+	lottery.data.resize(dataParts.size());
+	lottery.indices.resize(dataParts.size());
+
+	for (uint32 ii = 0; ii < dataParts.size(); ++ii)
+	{
+		uint8 num = uint8(std::stoi(dataParts[ii]));
+
+		lottery.data[ii].num = num;
+		lottery.data[ii].idxInLine = ii;
+
+		BOOST_ASSERT(1 <= num && num <= 10);
+		lottery.indices[num - 1] = ii;
+	}
+
+	return ErrorType::ET_NoError;
+}
+
 ErrorType FileDataReader::ConstructData(LotteryLineDataArray &lotterys)
 {
 	std::ifstream iff(mPath.c_str());
@@ -16,14 +52,7 @@ ErrorType FileDataReader::ConstructData(LotteryLineDataArray &lotterys)
 	if (!iff)
 		return ErrorType::ET_FilePathIsNotValid;
 
-	std::wstring regMatchString(L"\t");
-
-	for (uint32 ii = 0; ii < 9; ++ii)
-		regMatchString += L"\\d+\\s*,?";
-
-	regMatchString += L"\\d+";
-
-	std::wregex regDataNum(regMatchString.c_str(), std::regex_constants::icase);
+	std::wregex regDataNum = std::move(build_num_reg_obj());
 
 	std::string line;
 	while (std::getline(iff, line))
@@ -57,26 +86,11 @@ ErrorType FileDataReader::ConstructData(LotteryLineDataArray &lotterys)
 			std::wstring strData = *matchResult.begin();
 			trim(strData);
 
-			std::vector<std::string> dataParts;
-			boost::split(dataParts, strData, boost::is_any_of(", "));
-			if (dataParts.size() != 10)
-				return ErrorType::ET_FileFormatErrorWithWrongData;
-
 			lotterys.push_back(LotteryLineData());
-			LotteryLineData &lottery = lotterys.back();
-			lottery.data.resize(dataParts.size());
-			lottery.indices.resize(dataParts.size());
 
-			for (uint32 ii = 0; ii < dataParts.size(); ++ii)
-			{
-				uint8 num = uint8(std::stoi(dataParts[ii]));
-
-				lottery.data[ii].num = num;
-				lottery.data[ii].idxInLine = ii;
-
-				BOOST_ASSERT(1 <= num && num <= 10);
-				lottery.indices[num - 1] = ii;
-			}
+			auto result = convert_string_data_num_to_lottery(strData, lotterys.back());
+			if (ErrorType::ET_NoError != result)
+				return result;
 		}
 
 

@@ -11,4 +11,7 @@ enum class ErrorType : uint32
 	ET_AnalyzeEmptyData,
 
 	ET_URLPreformError,
+	ET_URLContent_NoLotteryTab,
+	ET_URLContent_NoLotteryTab_NoTable,
+	ET_URLContent_NoLotteryTab_NoTableEnd,
 };

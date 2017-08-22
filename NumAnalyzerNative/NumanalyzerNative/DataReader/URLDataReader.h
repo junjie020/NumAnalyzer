@@ -15,6 +15,9 @@ public:
 	}
 
 private:
+	ErrorType DownloadDataFromURL();
+
+private:
 	std::wstring mURL;
 
 	std::wstring mURLContent;
