@@ -4,6 +4,12 @@
 std::wstring utf8_to_utf16(const std::string &wstr);
 std::string utf16_to_utf8(const std::wstring &str);
 
+std::wstring gbk_to_utf16(const std::string &gbk);
+std::string utf16_to_gbk(const std::wstring &utf16);
+
+std::string utf8_to_gbk(const std::string &utf8);
+std::string gbk_to_utf8(const std::string &gbk);
+
 bool is_white_space(int32 c);
 
 template<class StrType>
