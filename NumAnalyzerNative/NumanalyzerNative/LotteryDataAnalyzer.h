@@ -5,6 +5,7 @@
 #include "LotteryDataType.h"
 #include "Analyzer/DataFilter.h"
 #include "Analyzer/DataAnalyzer.h"
+#include "DataReader/DataReader.h"
 
 
 
@@ -21,9 +22,6 @@ public:
 	OddEvenAnalyzer() : SimpleDataAnalyzer("OddEvenAnalyzer") {}
 	virtual void Analyze(const LotteryLineDataArray &lotteryDataArray, const DataFilter &filter, AnalyzeResult &result) override;
 };
-
-
-
 
 class NumberBigSmallAnalyzer : public NumDataAnalyzer
 {
@@ -47,7 +45,7 @@ class LotteryDataAnalyzer
 public:
 	LotteryDataAnalyzer(const std::wstring &dataPath);
 
-	ErrorType ConstructData(bool isURL);
+	ErrorType ConstructData(const CreateDataReaderParam &param);
 
 	ErrorType Analyze(std::string &outputInfo);
 private:

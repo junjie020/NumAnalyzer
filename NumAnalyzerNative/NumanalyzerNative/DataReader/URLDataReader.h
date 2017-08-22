@@ -2,29 +2,34 @@
 
 #include "DataReader/DataReader.h"
 
+using URLContent = std::vector<char>;
+
+struct URLContentData
+{
+	URLContent	content;
+	uint32		contentSize;
+};
+using URLContentDataArray = std::vector<URLContentData>;
+
 class URLDataReader : public IDataReader
 {
 public:
 
-	URLDataReader(const std::wstring &URL);
+	URLDataReader(const std::wstring &URL, int32 pagesToRead);
 
 	virtual ErrorType ConstructData(LotteryLineDataArray &lotterys) override;
 
-	std::vector<char>& GetContent() {
-		return mURLContent;
+	URLContentDataArray& GetContents() {
+		return mURLContents;
 	}
 
-	void SetContentSize(uint32 contentSize) {
-		mURLContentSize = contentSize;
-	}
-	
 private:
 	ErrorType DownloadDataFromURL();
 	ErrorType ParseURLContent(LotteryLineDataArray &lotterys);
 
 private:
 	std::wstring		mURL;
-	std::vector<char>	mURLContent;
-	uint32				mURLContentSize;
+	URLContentDataArray	mURLContents;
 
+	int32				mPagesToRead;
 };

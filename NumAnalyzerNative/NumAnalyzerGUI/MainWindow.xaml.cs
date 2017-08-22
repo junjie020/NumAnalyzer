@@ -40,6 +40,9 @@ namespace NumAnalyzerGUI
 		[DllImport("NumanalyzerNative.dll", CallingConvention = CallingConvention.Cdecl)]
 		private static extern int InitNative();
 
+		[DllImport("NumanalyzerNative.dll", CallingConvention = CallingConvention.Cdecl)]
+		private static extern void URLPageToReadNative(int page);		
+
 		private bool needDisableURL = false;
 		public MainWindow()
 		{
@@ -58,6 +61,8 @@ namespace NumAnalyzerGUI
 
 				System.Windows.MessageBox.Show("确认网路是否有连接，网址模式不可用", "警告", MessageBoxButton.OK);
 			}
+
+			URLPageToReadNative(System.Math.Max(1, Int32.Parse(PageToRead.Text)));
 		}
 
 		//[StructLayout(LayoutKind.Sequential)]
@@ -208,6 +213,8 @@ namespace NumAnalyzerGUI
 
 		private void AnalyzeResult(string content, bool isURL)
 		{
+			URLPageToReadNative(System.Math.Max(1, Int32.Parse(PageToRead.Text)));
+
 			const int bufferSize = 1024 * 1024;
 			StringBuilder outputResults = new StringBuilder(bufferSize);
 

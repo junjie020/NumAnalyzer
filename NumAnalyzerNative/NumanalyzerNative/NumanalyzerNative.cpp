@@ -7,6 +7,8 @@
 #include "LotteryDataAnalyzer.h"
 #include "LogSystem.h"
 
+#include "DataReader/DataReader.h"
+
 #include "StringUtils.h"
 
 #include "curl/include/curl/curl.h"
@@ -29,10 +31,13 @@ extern "C"
 		return 1;
 	}
 
+	NUMANALYZERNATIVE_API void URLPageToReadNative(int pages)
+	{
+		CNumanalyzerNative::Get().SetURLPageToRead(pages);
+	}
+
 	NUMANALYZERNATIVE_API int NumAnalyzeNative(const char* path, char* output, int outputBufferSize, bool isURL)
 	{
-		CNumanalyzerNative::Get().Clear();
-
 		const std::wstring wPath = StringUtils::is_empty_c_str(path) ? L"" : StringUtils::utf8_to_utf16(std::string(path));
 
 		std::string outputInfo;
@@ -65,7 +70,8 @@ extern "C"
 // see NumanalyzerNative.h for the class definition
 
 CNumanalyzerNative::CNumanalyzerNative()
-	:mLotteryAnalyzer(nullptr)
+	: mLotteryAnalyzer(nullptr)
+	, mURLPageToRead(1)
 {
 
 }
@@ -81,11 +87,12 @@ ErrorType CNumanalyzerNative::Run(const std::wstring &path, std::string &outputI
 
 	mLotteryAnalyzer = new LotteryDataAnalyzer(path);
 
-	auto result = mLotteryAnalyzer->ConstructData(isURL);
+	const CreateDataReaderParam param = { path, mURLPageToRead, isURL };
+
+	auto result = mLotteryAnalyzer->ConstructData(param);
 	if (ErrorType::ET_NoError != result)
 		return result;
 
-	
 	return mLotteryAnalyzer->Analyze(outputInfo);
 }
 

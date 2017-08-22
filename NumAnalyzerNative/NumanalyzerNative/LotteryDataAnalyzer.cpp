@@ -19,9 +19,9 @@ LotteryDataAnalyzer::LotteryDataAnalyzer(const std::wstring &dataPath)
 
 }
 
-ErrorType LotteryDataAnalyzer::ConstructData(bool isURL)
+ErrorType LotteryDataAnalyzer::ConstructData(const CreateDataReaderParam &param)
 {
-	std::unique_ptr<IDataReader> reader(IDataReader::CreateDataReader(isURL, mDataPath));
+	std::unique_ptr<IDataReader> reader(IDataReader::CreateDataReader(param));
 
 	return reader->ConstructData(mLotteryData);
 }

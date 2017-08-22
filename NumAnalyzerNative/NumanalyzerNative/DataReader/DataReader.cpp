@@ -4,12 +4,12 @@
 #include "FileDataReader.h"
 #include "URLDataReader.h"
 
-IDataReader* IDataReader::CreateDataReader(bool isURL, const std::wstring &content)
+IDataReader* IDataReader::CreateDataReader(const CreateDataReaderParam &param)
 {
-	if (isURL)
-		return new URLDataReader(content);
+	if (param.isURL)
+		return new URLDataReader(param.content, param.URLPagesToRead);
 
-	return new FileDataReader(content);
+	return new FileDataReader(param.content);
 }
 
 

@@ -42,6 +42,8 @@
         <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="路径 ：" VerticalAlignment="Top" Margin="11,10,0,0" Height="23"/>
         <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="网址 ：" VerticalAlignment="Top" Margin="11,38,0,0" Height="23"/>
         <CheckBox x:Name="URLCheck" Content="使用网址" Margin="598,38,29,0" VerticalAlignment="Top" Click="UsingURLAsInput" Height="23" FontSize="14" IsChecked="True"/>
+        <TextBlock HorizontalAlignment="Left" Margin="515,65,0,0" TextWrapping="Wrap" Text="读取页数 ： " VerticalAlignment="Top"/>
+        <TextBox x:Name="PageToRead" HorizontalAlignment="Left" Height="23" Margin="587,64,0,0" TextWrapping="Wrap" Text="10" VerticalAlignment="Top" Width="101" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"/>
     </Grid>
 
 </Window>

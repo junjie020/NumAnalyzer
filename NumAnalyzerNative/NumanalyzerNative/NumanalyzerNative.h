@@ -39,10 +39,19 @@ public:
 
 	void Clear();
 
+	int32 GetURLPageToRead() const {
+		return mURLPageToRead;
+	}
+
+	void SetURLPageToRead(int32 pages) {
+		mURLPageToRead = pages;
+	}
+
 private:
 	void ReleaseLotteryAnalyzer();
 private:
 	LotteryDataAnalyzer *mLotteryAnalyzer;
+	int32 mURLPageToRead;
 
 private:
 	static CNumanalyzerNative mSingleton;
@@ -55,5 +64,8 @@ NUMANALYZERNATIVE_API int NumAnalyzeNative(const char* path, char* output, int o
 
 extern "C"
 NUMANALYZERNATIVE_API int InitNative();
+
+extern "C"
+NUMANALYZERNATIVE_API void URLPageToReadNative(int page);
 
 //extern "C" NUMANALYZERNATIVE_API int Add(int, int);
