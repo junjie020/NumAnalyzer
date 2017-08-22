@@ -44,21 +44,7 @@ static size_t write_data(void *ptr, size_t size, size_t nmemb, void *stream)
 	auto &content = reader->GetContent();
 
 	const size_t realsize = size * nmemb;
-
-	std::string bufferUTF8;
-	bufferUTF8.append((const char*)ptr, ((const char*)ptr) + realsize);
-
-	try
-	{
-		content += utf8_to_utf16(bufferUTF8);
-	}
-	catch (std::exception& e)
-	{
-		std::ostringstream oss;
-		oss << "convert failed, throw exception, " << e.what();
-		LogSystem::Get()->Log(oss.str());
-	}
-	
+	content.insert(content.end(), (const char*)ptr, ((const char*)ptr) + realsize);
 
 	return realsize;
 }
@@ -107,66 +93,42 @@ static int debug_function(CURL *handle, curl_infotype type,	char *data, size_t s
 	return 0;
 }
 
-std::wregex build_num_reg_obj();
-ErrorType convert_string_data_num_to_lottery(const std::wstring &dataNum, LotteryLineData &lottery);
 
 ErrorType URLDataReader::ConstructData(LotteryLineDataArray &lotterys)
 {
 	ErrorType result = DownloadDataFromURL();
 	if (result == ErrorType::ET_NoError)
 	{
-		const std::wstring tabID = L"id=\"lottery_tabs\"";
-		auto foundPos = mURLContent.find(tabID);
-
-		if (foundPos == std::wstring::npos)
-			return ErrorType::ET_URLContent_NoLotteryTab;
-
-		const std::wstring tableTab = L"<table";
-		const auto tablePos = mURLContent.find(tableTab, foundPos);
-		if (tablePos == std::wstring::npos)
-			return ErrorType::ET_URLContent_NoLotteryTab_NoTable;
-
-		const std::wstring tableTabEnd = L"</table>";
-
-
-		auto tablePosEnd = mURLContent.find(tableTabEnd, tablePos);
-		if (tablePos == std::wstring::npos)
-			return ErrorType::ET_URLContent_NoLotteryTab_NoTableEnd;
-
-		const std::wstring tableContent = mURLContent.substr(tablePos, tablePosEnd);
-
-		const std::wstring recordNodeName = L"<tr";
-		const std::wstring recordNodeNameEnd = L"</tr>";
-
-		std::vector<std::wstring> dataParts;
-		boost::split(dataParts, tableContent, boost::is_any_of(L"\n"));
-
-		std::wregex regNum = build_num_reg_obj();
-
-		for (const auto &ss : dataParts)
-		{
-			std::wsmatch mResult;
-			if (std::regex_search(ss, mResult, regNum))
-			{
-				lotterys.push_back(LotteryLineData());
-
-				std::wstring dataNum = *mResult.begin();
-
-				auto cvtResult = convert_string_data_num_to_lottery(dataNum, lotterys.back());
-				if (cvtResult != ErrorType::ET_NoError)
-					return cvtResult;
-			}
-		}
+		return ParseURLContent(lotterys);
 	}
 
 	return result;
+}
+
+static size_t get_content_length_func(char *buffer, size_t size,
+	size_t nitems, void *userdata)
+{
+	std::string header(buffer);
+	StringUtils::trim(header);
+
+	if (header.find("Content-Length") != std::string::npos)
+	{
+		std::vector<std::string> parts;
+		boost::split(parts, header, boost::is_any_of(":"));
+		BOOST_ASSERT(parts.size() == 2);
+
+		URLDataReader *reader = reinterpret_cast<URLDataReader*>(userdata);
+		reader->SetContentSize(std::atoi(parts[1].c_str()));	
+	}
+
+	return size * nitems;
 }
 
 ErrorType URLDataReader::DownloadDataFromURL()
 {
 	CURL* handle = curl_easy_init();
 
-	const std::string url = utf16_to_utf8(mURL);
+	const std::string url = StringUtils::utf16_to_utf8(mURL);
 
 	const bool isHttps = url.find("https") != std::string::npos;
 
@@ -187,11 +149,14 @@ ErrorType URLDataReader::DownloadDataFromURL()
 
 	curl_easy_setopt(handle, CURLOPT_SSL_VERIFYPEER, isHttps);
 
-	//curl_easy_setopt(handle, CURLOPT_RETURNTRANSFER, true);
+	curl_easy_setopt(handle, CURLOPT_HEADERFUNCTION, get_content_length_func);
+	curl_easy_setopt(handle, CURLOPT_HEADERDATA, this);
 
 	result = curl_easy_perform(handle);
 	curl_easy_cleanup(handle);
 	handle = nullptr;
+
+	BOOST_ASSERT(mURLContentSize == mURLContent.size());
 
 	if (result != CURLE_OK)
 	{
@@ -200,6 +165,70 @@ ErrorType URLDataReader::DownloadDataFromURL()
 		LogSystem::Get()->Log(oss.str());
 
 		return ErrorType::ET_URLPreformError;
+	}
+
+	return ErrorType::ET_NoError;
+}
+
+std::wregex build_num_reg_obj();
+ErrorType convert_string_data_num_to_lottery(const std::wstring &dataNum, LotteryLineData &lottery);
+
+ErrorType URLDataReader::ParseURLContent(LotteryLineDataArray &lotterys)
+{
+	std::wstring utf16Content;
+	try
+	{
+		std::string ss(mURLContent.begin(), mURLContent.end());
+		utf16Content = StringUtils::utf8_to_utf16(ss);
+	}
+	catch (std::exception& e)
+	{
+		std::ostringstream oss;
+		oss << "convert failed, throw exception, " << e.what();
+		LogSystem::Get()->Log(oss.str());
+	}
+
+	const std::wstring tabID = L"id=\"lottery_tabs\"";
+	auto foundPos = utf16Content.find(tabID);
+
+	if (foundPos == std::wstring::npos)
+		return ErrorType::ET_URLContent_NoLotteryTab;
+
+	const std::wstring tableTab = L"<table";
+	const auto tablePos = utf16Content.find(tableTab, foundPos);
+	if (tablePos == std::wstring::npos)
+		return ErrorType::ET_URLContent_NoLotteryTab_NoTable;
+
+	const std::wstring tableTabEnd = L"</table>";
+
+
+	auto tablePosEnd = utf16Content.find(tableTabEnd, tablePos);
+	if (tablePos == std::wstring::npos)
+		return ErrorType::ET_URLContent_NoLotteryTab_NoTableEnd;
+
+	const std::wstring tableContent = utf16Content.substr(tablePos, tablePosEnd - tablePos);
+
+	const std::wstring recordNodeName = L"<tr";
+	const std::wstring recordNodeNameEnd = L"</tr>";
+
+	std::vector<std::wstring> dataParts;
+	boost::split(dataParts, tableContent, boost::is_any_of(L"\n"));
+
+	std::wregex regNum = build_num_reg_obj();
+
+	for (const auto &ss : dataParts)
+	{
+		std::wsmatch mResult;
+		if (std::regex_search(ss, mResult, regNum))
+		{
+			lotterys.push_back(LotteryLineData());
+
+			std::wstring dataNum = *mResult.begin();
+
+			auto cvtResult = convert_string_data_num_to_lottery(dataNum, lotterys.back());
+			if (cvtResult != ErrorType::ET_NoError)
+				return cvtResult;
+		}
 	}
 
 	return ErrorType::ET_NoError;

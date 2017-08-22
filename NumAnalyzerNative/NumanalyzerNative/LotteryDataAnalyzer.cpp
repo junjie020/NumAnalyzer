@@ -23,12 +23,6 @@ ErrorType LotteryDataAnalyzer::ConstructData(bool isURL)
 	std::unique_ptr<IDataReader> reader(IDataReader::CreateDataReader(isURL, mDataPath));
 
 	return reader->ConstructData(mLotteryData);
-
-
-	//if (isURL)
-	//	return ReadDataFromURL();
-
-	//return ReadDataFromFile();
 }
 
 ErrorType LotteryDataAnalyzer::Analyze(std::string &outputInfo)
@@ -166,13 +160,13 @@ static std::string find_json_template_folder()
 	buffer.resize(1024);
 	::_wgetcwd(&*buffer.begin(), buffer.size());
 
-	return utf16_to_utf8(get_parent_path(buffer));
+	return StringUtils::utf16_to_utf8(StringUtils::get_parent_path(buffer));
 }
 
 static std::string read_json_template_content()
 {
 	//const std::string jsonTemplatePath = "G:/github/NumAnalyzer/NumAnalyzerNative/NumAnalyzerConsoleTest/jsontest1.json";//join_path(find_json_template_folder(), "Resources\\JSONTemplate.json");
-	const std::string jsonTemplatePath = join_path(find_json_template_folder(), "Resources\\JSONTemplate.json");
+	const std::string jsonTemplatePath = StringUtils::join_path(find_json_template_folder(), "Resources\\JSONTemplate.json");
 
 	std::ifstream iff(jsonTemplatePath.c_str());
 	if (iff)
@@ -236,6 +230,25 @@ void LotteryDataAnalyzer::FormatOutput(const AnalyzeResultAll &results, std::str
 		std::ofstream off("jsontest.json");
 		off << sb.GetString();
 	}
+
+	//{@	save origin data info
+	//for (auto &line : mLotteryData)
+	//{
+	//	for (auto &data : line.data)
+	//	{
+	//		const char* colName = "OriginNumbers";
+	//		BOOST_ASSERT(doc.FindMember(colName) == doc.MemberEnd());
+
+	//		rapidjson::Value originNumValue;
+	//		originNumValue.SetArray();
+
+	//		rapidjson::Value
+
+
+	//		doc.AddMember(colName, originNumValue, doc.);
+	//	}
+	//}
+	//@}
 }
 
 ErrorType LotteryDataAnalyzer::ReadDataFromURL()

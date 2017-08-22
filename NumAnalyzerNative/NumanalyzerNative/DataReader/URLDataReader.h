@@ -10,15 +10,21 @@ public:
 
 	virtual ErrorType ConstructData(LotteryLineDataArray &lotterys) override;
 
-	std::wstring& GetContent() {
+	std::vector<char>& GetContent() {
 		return mURLContent;
 	}
 
+	void SetContentSize(uint32 contentSize) {
+		mURLContentSize = contentSize;
+	}
+	
 private:
 	ErrorType DownloadDataFromURL();
+	ErrorType ParseURLContent(LotteryLineDataArray &lotterys);
 
 private:
-	std::wstring mURL;
+	std::wstring		mURL;
+	std::vector<char>	mURLContent;
+	uint32				mURLContentSize;
 
-	std::wstring mURLContent;
 };

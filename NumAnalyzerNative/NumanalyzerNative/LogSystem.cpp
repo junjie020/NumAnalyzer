@@ -30,7 +30,7 @@ void LogSystem::Log(const std::wstring &content)
 
 void LogSystem::Log(const std::string &content)
 {
-	Log(utf8_to_utf16(content));
+	Log(StringUtils::utf8_to_utf16(content));
 }
 
 LogSystem* LogSystem::mSinglton;

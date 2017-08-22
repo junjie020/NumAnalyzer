@@ -33,7 +33,7 @@ extern "C"
 	{
 		CNumanalyzerNative::Get().Clear();
 
-		const std::wstring wPath = is_empty_c_str(path) ? L"" : utf8_to_utf16(std::string(path));
+		const std::wstring wPath = StringUtils::is_empty_c_str(path) ? L"" : StringUtils::utf8_to_utf16(std::string(path));
 
 		std::string outputInfo;
 		ErrorType result = CNumanalyzerNative::Get().Run(wPath, outputInfo, isURL);

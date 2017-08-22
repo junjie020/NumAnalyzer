@@ -77,14 +77,14 @@ ErrorType FileDataReader::ConstructData(LotteryLineDataArray &lotterys)
 		boost::split(dataParts, parts[1], boost::is_any_of(","));
 		*/
 
-		auto wLine = utf8_to_utf16(line);
-		line = utf16_to_utf8(wLine);
+		auto wLine = StringUtils::utf8_to_utf16(line);
+		line = StringUtils::utf16_to_utf8(wLine);
 
 		std::wsmatch matchResult;
 		if (std::regex_search(wLine, matchResult, regDataNum))
 		{
 			std::wstring strData = *matchResult.begin();
-			trim(strData);
+			StringUtils::trim(strData);
 
 			lotterys.push_back(LotteryLineData());
 

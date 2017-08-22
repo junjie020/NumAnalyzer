@@ -54,10 +54,6 @@ private:
 	void FormatOutput(const AnalyzeResultAll &results, std::string &outputInfo);
 
 private:
-	ErrorType ReadDataFromFile();
-	ErrorType ReadDataFromURL();
-
-private:
 	std::wstring			mDataPath;
 	std::string				mDataContent;
 
