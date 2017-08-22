@@ -4,13 +4,20 @@
 #include "stdafx.h"
 #include "NumanalyzerNative.h"
 
-int main()
-{
-	const int buffersize = 1024 * 1024;
-	char *buffer = new char[buffersize];
-	fnNumanalyzerNative("../TestResource/TestData.txt", buffer, buffersize);
+extern void test();
+extern int test_beg(int argc, char **argv);
 
-	delete[]buffer;
-    return 0;
+void test_analyzer()
+{
+	InitNative();
+	const int bufferSize = 1024 * 1024;
+	char *buffer = new char[bufferSize];
+	NumAnalyzeNative("http://www.bwlc.net/bulletin/prevtrax.html", buffer, bufferSize, true);
+	delete[] buffer;
 }
 
+int main(int argc, char* argv[])
+{
+	test_analyzer();
+	return 0;
+}
