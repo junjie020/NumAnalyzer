@@ -55,6 +55,7 @@ namespace NumAnalyzerGUI
 			if(needDisableURL)
 			{
 				URLCheck.IsEnabled = false;
+				PageToRead.IsEnabled = false;
 
 				FileTextBox.IsEnabled = true;
 				Brown.IsEnabled = true;
@@ -255,6 +256,7 @@ namespace NumAnalyzerGUI
 			Brown.IsEnabled = !isCheck;
 
 			URLTextBox.IsEnabled = isCheck;
+			PageToRead.IsEnabled = isCheck;
 		}
 	}
 }
