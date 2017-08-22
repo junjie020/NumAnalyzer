@@ -29,7 +29,7 @@ extern "C"
 		return 1;
 	}
 
-	int NumAnalyzeNative(const char* path, char* output, int outputBufferSize, bool isURL)
+	NUMANALYZERNATIVE_API int NumAnalyzeNative(const char* path, char* output, int outputBufferSize, bool isURL)
 	{
 		CNumanalyzerNative::Get().Clear();
 
@@ -57,19 +57,7 @@ extern "C"
 
 		return int32(result);
 	}
-
-	// This is an example of an exported function.
-	NUMANALYZERNATIVE_API int NumanalyzerNativeFromPath(const char* path, char* output, int outputBufferSize)
-	{
-		return NumAnalyzeNative(path, output, outputBufferSize, false);
-	}
-
-	NUMANALYZERNATIVE_API int NumanalyzerNativeFromURL(const char* url, char *output, int outputBufferSize)
-	{
-		return NumAnalyzeNative(url, output, outputBufferSize, true);
-	}
 }
-
 
 
 

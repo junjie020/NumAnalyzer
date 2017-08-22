@@ -28,11 +28,14 @@ namespace NumAnalyzerGUI
 	/// </summary>
 	public partial class MainWindow : Window
 	{
-		[DllImport("NumanalyzerNative.dll", CallingConvention = CallingConvention.Cdecl)]
-		private static extern int NumanalyzerNativeFromPath(string filePath, StringBuilder output, int outputBufferSize);
+		//[DllImport("NumanalyzerNative.dll", CallingConvention = CallingConvention.Cdecl)]
+		//private static extern int NumanalyzerNativeFromPath(string filePath, StringBuilder output, int outputBufferSize);
+
+		//[DllImport("NumanalyzerNative.dll", CallingConvention = CallingConvention.Cdecl)]
+		//private static extern int NumanalyzerNativeFromURL(string URL, StringBuilder output, int outputBufferSize);
 
 		[DllImport("NumanalyzerNative.dll", CallingConvention = CallingConvention.Cdecl)]
-		private static extern int NumanalyzerNativeFromURL(string URL, StringBuilder output, int outputBufferSize);
+		private static extern int NumAnalyzeNative(string URL, StringBuilder output, int outputBufferSize, bool isURL);
 
 		[DllImport("NumanalyzerNative.dll", CallingConvention = CallingConvention.Cdecl)]
 		private static extern int InitNative();
@@ -166,15 +169,13 @@ namespace NumAnalyzerGUI
 			NumOddEvenTabContent.Text = BuildAnalyzeTypeInfo(numOddEvenAnalyzeResultJObj);
 		}
 
-		private void AnalyzeResult(string content, bool URL)
+		private void AnalyzeResult(string content, bool isURL)
 		{
 			const int bufferSize = 1024 * 1024;
 			StringBuilder outputResults = new StringBuilder(bufferSize);
-			if (URL)
-				NumanalyzerNativeFromURL(content, outputResults, bufferSize);
-			else
-				NumanalyzerNativeFromPath(content, outputResults, bufferSize);
 
+			NumAnalyzeNative(content, outputResults, bufferSize, isURL);
+			
 			PrintInfoToTabs(outputResults.ToString());
 		}
 	

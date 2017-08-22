@@ -51,10 +51,7 @@ private:
 extern NUMANALYZERNATIVE_API int nNumanalyzerNative;
 
 extern "C"
-NUMANALYZERNATIVE_API int NumanalyzerNativeFromPath(const char* path, char *output, int outputBufferSize);
-
-extern "C"
-NUMANALYZERNATIVE_API int NumanalyzerNativeFromURL(const char* url, char *output, int outputBufferSize);
+NUMANALYZERNATIVE_API int NumAnalyzeNative(const char* path, char* output, int outputBufferSize, bool isURL);
 
 extern "C"
 NUMANALYZERNATIVE_API int InitNative();
