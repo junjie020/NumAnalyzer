@@ -142,9 +142,43 @@ static size_t get_content_length_func(char *buffer, size_t size,
 	return size * nitems;
 }
 
-static std::wstring get_url_page_suffix(int32 page)
+static std::wstring get_url_suffix(const std::wstring &originURL, std::wstring &hostURL)
 {
-	return page == 1 ? L"" : (L"?page=" + std::to_wstring(page));
+	auto foundPos = originURL.rfind(L'?');
+	if (foundPos == std::wstring::npos)
+	{
+		hostURL = originURL;
+		return std::wstring();
+	}
+		
+	hostURL = originURL.substr(0, foundPos);
+	return originURL.substr(foundPos);
+}
+
+static int32 get_start_page_index(const std::wstring &urlSuffix)
+{
+	if (!urlSuffix.empty())
+	{
+		std::vector<std::string>	parts;
+		boost::split(parts, StringUtils::utf16_to_utf8(urlSuffix), boost::is_any_of("="));
+		if (parts.size() == 2)
+		{
+			return std::atoi(parts[1].c_str());
+		}
+	}
+	return 1;
+}
+
+static std::wstring generate_new_url_with_page(const std::wstring &originURL, int32 pageIdx)
+{
+	std::wstring hostURL;
+	const std::wstring urlSuffix = get_url_suffix(originURL, hostURL);
+
+	const int32 urlStartIdx = get_start_page_index(urlSuffix);
+
+	const int32 page = pageIdx + urlStartIdx;
+
+	return hostURL + (page == 1 ? L"" : (L"?page=" + std::to_wstring(page)));
 }
 
 ErrorType URLDataReader::DownloadDataFromURL()
@@ -155,10 +189,9 @@ ErrorType URLDataReader::DownloadDataFromURL()
 
 		CURL* handle = curl_easy_init();
 
-		const std::wstring pageSuffix = get_url_page_suffix(iPage + 1);
-		const std::string url = StringUtils::utf16_to_utf8(mURL + pageSuffix);
+		const std::string url = StringUtils::utf16_to_utf8(generate_new_url_with_page(mURL, iPage));
 
-		LogSystem::Get()->Log(std::string("reading url : ") + url);
+		LOG(std::string("reading url : ") + url);
 
 		const bool isHttps = url.find("https") != std::string::npos;
 
