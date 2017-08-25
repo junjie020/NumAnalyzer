@@ -19,26 +19,38 @@ extern "C"
 	{
 		LogSystem::Init(L"Log.log");
 
+		LOG("InitNative");
+
 		CURLcode code = curl_global_init(CURL_GLOBAL_ALL);
 		if (CURLE_OK == code)
 			return 0;
+
+		LOG("curl_global_init");
 
 		{
 			std::ostringstream oss;
 			oss << "Init cURL failed, url code : " << int32(code) << std::endl;
 			LogSystem::Get()->Log(oss.str());
 		}		
+		LOG("InitNative end");
 		return 1;
 	}
 
 	NUMANALYZERNATIVE_API void URLPageToReadNative(int pages)
 	{
+		LOGEX("call page : ", pages);
 		CNumanalyzerNative::Get().SetURLPageToRead(pages);
 	}
 
 	NUMANALYZERNATIVE_API int NumAnalyzeNative(const char* path, char* output, int outputBufferSize, bool isURL)
 	{
 		const std::wstring wPath = StringUtils::is_empty_c_str(path) ? L"" : StringUtils::utf8_to_utf16(std::string(path));
+
+		{
+			std::ostringstream oss;
+			oss << "NumAnalyzeNative begin, url path : " << StringUtils::utf16_to_utf8(wPath) << ", is url : " << isURL;
+			LOG(oss.str());
+		}		
 
 		std::string outputInfo;
 		ErrorType result = CNumanalyzerNative::Get().Run(wPath, outputInfo, isURL);
@@ -51,12 +63,12 @@ extern "C"
 				LogSystem::Get()->Log("output buffer size is not enough to store all the info\n");
 			}
 
-			::strncpy_s(output, outputBufferSize, &*outputInfo.begin(), outputInfo.size());
+			::strncpy_s(output, outputBufferSize, &*outputInfo.begin(), outputInfo.size());	
 		}
 		else
 		{
 			std::wostringstream woss;
-			woss << L"error code : " << std::endl;
+			woss << L"error code : " << int32(result) << L", output is " << (outputInfo.empty() ? L"empty" : L"not empty");
 			LogSystem::Get()->Log(woss.str());
 		}
 
@@ -88,7 +100,7 @@ ErrorType CNumanalyzerNative::Run(const std::wstring &path, std::string &outputI
 	mLotteryAnalyzer = new LotteryDataAnalyzer(path);
 
 	const CreateDataReaderParam param = { path, mURLPageToRead, isURL };
-
+	
 	auto result = mLotteryAnalyzer->ConstructData(param);
 	if (ErrorType::ET_NoError != result)
 		return result;

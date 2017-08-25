@@ -161,7 +161,7 @@ static std::string find_json_template_folder()
 	buffer.resize(1024);
 	::_wgetcwd(&*buffer.begin(), buffer.size());
 
-	return StringUtils::utf16_to_utf8(StringUtils::get_parent_path(buffer));
+	return StringUtils::utf16_to_gbk(StringUtils::get_parent_path(buffer));
 }
 
 static std::string read_json_template_content()

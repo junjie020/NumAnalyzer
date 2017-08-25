@@ -67,7 +67,7 @@ static int debug_function(CURL *handle, curl_infotype type,	char *data, size_t s
 	case CURLINFO_TEXT:
 	{
 		std::ostringstream oss;
-		oss << "url download error : " << "data" << std::endl;
+		oss << "url download error : " << data << std::endl;
 		LogSystem::Get()->Log(oss.str());
 	}
 	default:
@@ -98,10 +98,24 @@ static int debug_function(CURL *handle, curl_infotype type,	char *data, size_t s
 
 ErrorType URLDataReader::ConstructData(LotteryLineDataArray &lotterys)
 {
+	LOG("URLDataReader::ConstructData");
+
 	ErrorType result = DownloadDataFromURL();
+
+
 	if (result == ErrorType::ET_NoError)
 	{
-		return ParseURLContent(lotterys);
+		result = ParseURLContent(lotterys);
+		if (result != ErrorType::ET_NoError)
+		{
+			std::ostringstream oss;
+			oss << "result = ParseURLContent(lotterys), error is : " << int32(result);
+			LOG(oss.str());
+		}
+	}
+	else
+	{
+		LOG("DownloadDataFromURL failed!");
 	}
 
 	return result;
@@ -192,6 +206,8 @@ ErrorType convert_string_data_num_to_lottery(const std::wstring &dataNum, Lotter
 
 ErrorType URLDataReader::ParseURLContent(LotteryLineDataArray &lotterys)
 {
+	LOGEX("URLDataReader::ParseURLContent, page is : ", mURLContents.size());
+
 	for (const auto &content : mURLContents)
 	{
 		std::wstring utf16Content;

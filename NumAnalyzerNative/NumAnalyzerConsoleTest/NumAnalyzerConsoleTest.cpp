@@ -12,6 +12,7 @@ void test_analyzer()
 	InitNative();
 	const int bufferSize = 1024 * 1024;
 	char *buffer = new char[bufferSize];
+	URLPageToReadNative(2);
 	NumAnalyzeNative("http://www.bwlc.net/bulletin/prevtrax.html", buffer, bufferSize, true);
 	delete[] buffer;
 }
@@ -21,6 +22,11 @@ int main(int argc, char* argv[])
 	//std::wstring ss(L"<table> abc </table> <table>abc abc</table>");
 
 	//auto pos = ss.find(L"</table>");
+
+	while (true)
+	{
+		int debug = 0;
+	}
 
 	test_analyzer();
 	return 0;

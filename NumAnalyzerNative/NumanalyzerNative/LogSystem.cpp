@@ -20,17 +20,25 @@ LogSystem::LogSystem(const std::wstring &path)
 	BOOST_ASSERT(mSinglton == nullptr);	
 }
 
-void LogSystem::Log(const std::wstring &content)
+void LogSystem::Log(const std::wstring &content, bool newLine /*= true*/)
 {
 	if (mFS)
 	{
-		mFS.write(content.c_str(), content.size());
+		if (newLine)
+		{
+			const std::wstring contentWithLine = content + L"\n";
+			mFS.write(contentWithLine.c_str(), contentWithLine.size());
+		}
+		else
+		{
+			mFS.write(content.c_str(), content.size());
+		}
 	}	
 }
 
-void LogSystem::Log(const std::string &content)
+void LogSystem::Log(const std::string &content, bool newLine /*= true*/)
 {
-	Log(StringUtils::utf8_to_utf16(content));
+	Log(StringUtils::utf8_to_utf16(content), newLine);
 }
 
 LogSystem* LogSystem::mSinglton;
