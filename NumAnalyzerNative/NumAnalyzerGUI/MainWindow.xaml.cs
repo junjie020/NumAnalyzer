@@ -258,5 +258,14 @@ namespace NumAnalyzerGUI
 			URLTextBox.IsEnabled = isCheck;
 			PageToRead.IsEnabled = isCheck;
 		}
+
+		private void ClearAllContent(object sender, RoutedEventArgs e)
+		{
+			BigSmallTabContent.Text = "";
+			OddEvenTabContent.Text = "";
+			NumBigSmallTabContent.Text = "";
+			NumOddEvenTabContent.Text = "";
+			OriginNumbersTabContent.Text = "";
+		}
 	}
 }

@@ -5,35 +5,35 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NumAnalyzerGUI"
         mc:Ignorable="d"
-        Title="DataAnalyer" Height="510.103" Width="717.065">
-    <Grid Margin="0,0,-8,0" >
+        Title="DataAnalyer" Height="537.57" Width="723.605">
+    <Grid Margin="0" >
         <TextBox x:Name="FileTextBox" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top" Width="511" Margin="71,10,0,0" IsEnabled="False"/>
         <Button x:Name="Brown" Content="浏览" Margin="598,9,29,0" VerticalAlignment="Top" Height="24" Click="BrownFile" IsEnabled="False"/>
         <TextBox x:Name="URLTextBox" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top" Width="511" Margin="71,38,0,0" Text="http://www.bwlc.net/bulletin/prevtrax.html"/>
-        <Button x:Name="Analyze" Content="分析" HorizontalAlignment="Left" Margin="581,0,0,10" VerticalAlignment="Bottom" Width="75" Click="AnalyzeResult" Height="24"/>
-        <TabControl x:Name="TabC" HorizontalAlignment="Left" Height="349" Margin="9,77,0,0" VerticalAlignment="Top" Width="679" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
-            <TabItem x:Name="ContinueTab" Header="大小" HorizontalAlignment="Left" VerticalAlignment="Top">
+        <Button x:Name="Analyze" Content="分析" Margin="609,445,12,18" Width="75" Click="AnalyzeResult" Height="24"/>
+        <TabControl x:Name="TabC" Margin="13,108,4,58" Width="679" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
+            <TabItem x:Name="ContinueTab" Header="大小">
                 <ScrollViewer>
                     <TextBox x:Name="BigSmallTabContent" Margin="10" TextWrapping="Wrap" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" />
                 </ScrollViewer>
             </TabItem>
-            <TabItem x:Name="StepTab" Header="单双" HorizontalAlignment="Left" VerticalAlignment="Top">
+            <TabItem x:Name="StepTab" Header="单双">
                 <ScrollViewer>
                     <TextBox x:Name="OddEvenTabContent" Margin="10" TextWrapping="Wrap" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"/>
                 </ScrollViewer>
             </TabItem>
-            <TabItem x:Name="NumContinueTab" Header="数字-大小" HorizontalAlignment="Left" VerticalAlignment="Top">
+            <TabItem x:Name="NumContinueTab" Header="数字-大小">
                 <ScrollViewer>
                     <TextBox x:Name="NumBigSmallTabContent" Margin="10" TextWrapping="Wrap" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"/>
                 </ScrollViewer>
             </TabItem>
-            <TabItem x:Name="NumStepTab" Header="数字-单双" HorizontalAlignment="Left" Height="19" VerticalAlignment="Top">
+            <TabItem x:Name="NumStepTab" Header="数字-单双" Height="19">
                 <ScrollViewer>
                     <TextBox x:Name="NumOddEvenTabContent" Margin="10" TextWrapping="Wrap" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" />
                 </ScrollViewer>
             </TabItem>
 
-            <TabItem x:Name="OriginNumbersTab" Header="原始读取数据" HorizontalAlignment="Left" Height="19" VerticalAlignment="Top">
+            <TabItem x:Name="OriginNumbersTab" Header="原始读取数据" Height="19">
                 <ScrollViewer>
                     <TextBox x:Name="OriginNumbersTabContent" Margin="10" TextWrapping="Wrap" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" />
                 </ScrollViewer>
@@ -41,9 +41,10 @@
         </TabControl>
         <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="路径 ：" VerticalAlignment="Top" Margin="11,10,0,0" Height="23"/>
         <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="网址 ：" VerticalAlignment="Top" Margin="11,38,0,0" Height="23"/>
-        <CheckBox x:Name="URLCheck" Content="使用网址" Margin="598,38,29,0" VerticalAlignment="Top" Click="UsingURLAsInput" Height="23" FontSize="14" IsChecked="True"/>
+        <CheckBox x:Name="URLCheck" Content="使用网址" Margin="598,38,10,0" VerticalAlignment="Top" Click="UsingURLAsInput" Height="23" FontSize="14" IsChecked="True"/>
         <TextBlock HorizontalAlignment="Left" Margin="515,65,0,0" TextWrapping="Wrap" Text="读取页数 ： " VerticalAlignment="Top"/>
-        <TextBox x:Name="PageToRead" HorizontalAlignment="Left" Height="23" Margin="587,64,0,0" TextWrapping="Wrap" Text="10" VerticalAlignment="Top" Width="101" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"/>
+        <TextBox x:Name="PageToRead" Height="23" Margin="598,64,29,0" TextWrapping="Wrap" Text="10" VerticalAlignment="Top" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"/>
+        <Button Content="清除所有内容" Margin="497,445,114,18" Click="ClearAllContent" Height="24"/>
     </Grid>
 
 </Window>
